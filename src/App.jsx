@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import { Activity, LayoutDashboard, FileCode2, BookOpen, Shield, Server, Terminal } from 'lucide-react';
 import Home from './pages/Home';
@@ -7,6 +8,46 @@ import Scanner from './pages/Scanner';
 import MemoryGuide from './pages/MemoryGuide';
 
 function App() {
+  // Persistent Scanner State
+  const [scannerResult, setScannerResult] = useState(null);
+  const [scannerExpectedHash, setScannerExpectedHash] = useState('');
+  const [isScannerWasmLoaded, setIsScannerWasmLoaded] = useState(false);
+  const [scannerWasmError, setScannerWasmError] = useState(null);
+
+  // Load Scanner Wasm Engine at App level
+  useEffect(() => {
+    if (window.RevBench_parseBinary) {
+      setIsScannerWasmLoaded(true);
+      return;
+    }
+
+    const loadWasm = async () => {
+      try {
+        const go = new window.Go();
+        const response = await fetch('/wasm/scanner.wasm');
+        if (!response.ok) throw new Error("Wasm file not found");
+        const buffer = await response.arrayBuffer();
+        const result = await WebAssembly.instantiate(buffer, go.importObject);
+        go.run(result.instance);
+        setIsScannerWasmLoaded(true);
+      } catch (err) {
+        console.error("Failed to load Wasm", err);
+        setScannerWasmError("Failed to load WebAssembly engine.");
+      }
+    };
+    
+    // Small delay to ensure Go is available from script tag
+    const timer = setTimeout(() => {
+      if (window.Go) {
+        loadWasm();
+      } else {
+        setScannerWasmError("wasm_exec.js not found on window object");
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const navLinkClass = ({ isActive }) => 
     `flex items-center gap-3 px-4 py-3 transition-all duration-300 font-medium ${
       isActive 
@@ -82,7 +123,20 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/converter" element={<Converter />} />
               <Route path="/tutor" element={<Tutor />} />
-              <Route path="/scanner" element={<Scanner />} />
+              <Route 
+                path="/scanner" 
+                element={
+                  <Scanner 
+                    result={scannerResult} 
+                    setResult={setScannerResult}
+                    expectedHash={scannerExpectedHash}
+                    setExpectedHash={setScannerExpectedHash}
+                    isWasmLoaded={isScannerWasmLoaded}
+                    error={scannerWasmError}
+                    setError={setScannerWasmError}
+                  />
+                } 
+              />
               <Route path="/memory" element={<MemoryGuide />} />
             </Routes>
           </div>
