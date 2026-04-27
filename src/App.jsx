@@ -1,40 +1,93 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
+import { Activity, LayoutDashboard, FileCode2, BookOpen, Shield, Server, Terminal } from 'lucide-react';
+import Home from './pages/Home';
 import Converter from './pages/Converter';
 import Tutor from './pages/Tutor';
 import Scanner from './pages/Scanner';
+import MemoryGuide from './pages/MemoryGuide';
 
 function App() {
+  const navLinkClass = ({ isActive }) => 
+    `flex items-center gap-3 px-4 py-3 transition-all duration-300 font-medium ${
+      isActive 
+        ? 'bg-gradient-to-r from-[#00d4ff]/15 to-transparent text-[#00d4ff] border-l-2 border-[#00d4ff]' 
+        : 'text-gray-400 hover:bg-[#151e2d] hover:text-gray-200 border-l-2 border-transparent'
+    }`;
+
   return (
     <Router>
-      <div className="flex min-h-screen bg-slate-900 text-white">
-        {/* Sidebar Navigation */}
-        <nav className="w-64 bg-slate-800 p-6 border-r border-slate-700">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-blue-400">ByteBench</h1>
-            <p className="text-sm text-slate-400">Security Tools</p>
+      <div className="flex h-screen bg-[#0b101e] text-gray-200 font-sans overflow-hidden">
+        
+        {/* Sidebar */}
+        <div className="w-72 bg-[#0b101e]/95 backdrop-blur-md border-r border-[#1f2937] flex flex-col z-20 shadow-2xl shadow-black/50">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-10">
+              <img src="/logo.png" alt="RevBench Logo" className="w-12 h-12 rounded-full object-cover border-2 border-[#00d4ff] shadow-lg shadow-[#00d4ff]/20" />
+              <h1 className="text-3xl font-black tracking-tight text-white">RevBench</h1>
+            </div>
+            
+            <ul className="space-y-1 flex-1">
+              <li>
+                <NavLink to="/" className={navLinkClass}>
+                  <LayoutDashboard size={18} />
+                  <span>Dashboard</span>
+                </NavLink>
+              </li>
+              <div className="pt-6 pb-2">
+                <p className="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Tools</p>
+              </div>
+              <li>
+                <NavLink to="/converter" className={navLinkClass}>
+                  <FileCode2 size={18} />
+                  <span>Quick Converter</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/tutor" className={navLinkClass}>
+                  <BookOpen size={18} />
+                  <span>C-to-ASM Tutor</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/scanner" className={navLinkClass}>
+                  <Shield size={18} />
+                  <span>Static Analyzer</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/memory" className={navLinkClass}>
+                  <Server size={18} />
+                  <span>Architecture Guide</span>
+                </NavLink>
+              </li>
+            </ul>
           </div>
-          <ul className="space-y-4">
-            <li>
-              <Link to="/converter" className="hover:text-blue-300 transition-colors">Quick Converter</Link>
-            </li>
-            <li>
-              <Link to="/tutor" className="hover:text-blue-300 transition-colors">C-to-ASM Tutor</Link>
-            </li>
-            <li>
-              <Link to="/scanner" className="hover:text-blue-300 transition-colors">Triage Scanner</Link>
-            </li>
-          </ul>
-        </nav>
+          
+          <div className="mt-auto p-6 text-sm text-gray-500 font-medium border-t border-[#1f2937]">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-[#00d4ff]"></div>
+              <span>Engine Status: Online</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <p className="text-xs">v1.0.0-beta</p>
+              <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Created by n1ghtwa1k3r</p>
+            </div>
+          </div>
+        </div>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-8 overflow-y-auto">
-          <Routes>
-            <Route path="/" element={<div className="text-xl">Welcome to ByteBench. Select a tool from the sidebar.</div>} />
-            <Route path="/converter" element={<Converter />} />
-            <Route path="/tutor" element={<Tutor />} />
-            <Route path="/scanner" element={<Scanner />} />
-          </Routes>
-        </main>
+        <div className="flex-1 overflow-auto bg-[#0b101e]">
+          <div className="p-8 h-full max-w-7xl mx-auto">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/converter" element={<Converter />} />
+              <Route path="/tutor" element={<Tutor />} />
+              <Route path="/scanner" element={<Scanner />} />
+              <Route path="/memory" element={<MemoryGuide />} />
+            </Routes>
+          </div>
+        </div>
+
       </div>
     </Router>
   );

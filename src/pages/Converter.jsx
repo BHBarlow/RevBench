@@ -1,23 +1,210 @@
+import { useState } from 'react';
+
 export default function Converter() {
+  const [hex, setHex] = useState('');
+  const [bin, setBin] = useState('');
+  const [ascii, setAscii] = useState('');
+  const [base64, setBase64] = useState('');
+  const [url, setUrl] = useState('');
+  const [shellcode, setShellcode] = useState('');
+
+  const bytesToBase64 = (bytes) => {
+    try {
+      return btoa(String.fromCharCode.apply(null, bytes));
+    } catch (err) {
+      return '';
+    }
+  };
+
+  const updateAllFromBytes = (bytes) => {
+    setHex(bytes.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' '));
+    setBin(bytes.map(b => b.toString(2).padStart(8, '0')).join(' '));
+    setAscii(bytes.map(b => (b >= 32 && b <= 126) ? String.fromCharCode(b) : '.').join(''));
+    setBase64(bytesToBase64(bytes));
+    
+    // URL Encode
+    try {
+      setUrl(encodeURIComponent(String.fromCharCode.apply(null, bytes)));
+    } catch (e) { setUrl(''); }
+
+    // Shellcode
+    setShellcode(bytes.map(b => '\\x' + b.toString(16).padStart(2, '0').toLowerCase()).join(''));
+  };
+
+  const handleHexChange = (e) => {
+    const value = e.target.value;
+    setHex(value);
+    try {
+      const cleanHex = value.replace(/[^0-9a-fA-F]/g, '');
+      let bytes = [];
+      for (let i = 0; i < cleanHex.length; i += 2) {
+        if (i + 1 < cleanHex.length) {
+          bytes.push(parseInt(cleanHex.substring(i, i + 2), 16));
+        }
+      }
+      updateAllFromBytes(bytes);
+      setHex(value); // Keep user's format in current box
+    } catch (err) {}
+  };
+
+  const handleBinChange = (e) => {
+    const value = e.target.value;
+    setBin(value);
+    try {
+      const cleanBin = value.replace(/[^01]/g, '');
+      let bytes = [];
+      for (let i = 0; i < cleanBin.length; i += 8) {
+        if (i + 8 <= cleanBin.length) {
+          bytes.push(parseInt(cleanBin.substring(i, i + 8), 2));
+        }
+      }
+      updateAllFromBytes(bytes);
+      setBin(value);
+    } catch (err) {}
+  };
+
+  const handleAsciiChange = (e) => {
+    const value = e.target.value;
+    setAscii(value);
+    try {
+      let bytes = [];
+      for (let i = 0; i < value.length; i++) {
+        bytes.push(value.charCodeAt(i));
+      }
+      updateAllFromBytes(bytes);
+      setAscii(value);
+    } catch (err) {}
+  };
+
+  const handleBase64Change = (e) => {
+    const value = e.target.value;
+    setBase64(value);
+    try {
+      const cleanB64 = value.replace(/\s/g, '');
+      const binaryString = atob(cleanB64);
+      let bytes = [];
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes.push(binaryString.charCodeAt(i));
+      }
+      updateAllFromBytes(bytes);
+      setBase64(value);
+    } catch (err) {}
+  };
+
+  const handleUrlChange = (e) => {
+    const value = e.target.value;
+    setUrl(value);
+    try {
+      const decoded = decodeURIComponent(value);
+      let bytes = [];
+      for (let i = 0; i < decoded.length; i++) {
+        bytes.push(decoded.charCodeAt(i));
+      }
+      updateAllFromBytes(bytes);
+      setUrl(value);
+    } catch (err) {}
+  };
+
+  const handleShellcodeChange = (e) => {
+    const value = e.target.value;
+    setShellcode(value);
+    try {
+      const cleanHex = value.replace(/\\x/g, '').replace(/[^0-9a-fA-F]/g, '');
+      let bytes = [];
+      for (let i = 0; i < cleanHex.length; i += 2) {
+        if (i + 1 < cleanHex.length) {
+          bytes.push(parseInt(cleanHex.substring(i, i + 2), 16));
+        }
+      }
+      updateAllFromBytes(bytes);
+      setShellcode(value);
+    } catch (err) {}
+  };
+
   return (
-    <div>
-      <h2 className="text-3xl font-bold mb-6 text-white">Quick Converter</h2>
-      <p className="text-slate-400 mb-8">Convert between Hex, Binary, and ASCII in real-time.</p>
+    <div className="flex flex-col h-full max-w-7xl mx-auto pb-12">
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold mb-2 text-white">Quick Converter</h2>
+        <p className="text-slate-400">Instantly translate payloads between 6 common formats in real-time. No server calls.</p>
+      </div>
       
-      <div className="space-y-6 max-w-2xl">
-        <div className="bg-slate-800 p-4 rounded-lg border border-slate-700">
-          <label className="block text-sm font-medium text-slate-300 mb-2">Hexadecimal</label>
-          <textarea className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-green-400 font-mono h-24 focus:outline-none focus:border-blue-500" placeholder="41 42 43..."></textarea>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
+          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
+            <span>Hexadecimal</span>
+            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">Base-16</span>
+          </label>
+          <textarea 
+            value={hex}
+            onChange={handleHexChange}
+            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
+            placeholder="41 42 43..."
+          ></textarea>
         </div>
         
-        <div className="bg-slate-800 p-4 rounded-lg border border-slate-700">
-          <label className="block text-sm font-medium text-slate-300 mb-2">Binary</label>
-          <textarea className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-green-400 font-mono h-24 focus:outline-none focus:border-blue-500" placeholder="01000001 01000010..."></textarea>
+        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
+          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
+            <span>Binary</span>
+            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">Base-2</span>
+          </label>
+          <textarea 
+            value={bin}
+            onChange={handleBinChange}
+            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
+            placeholder="01000001 01000010..."
+          ></textarea>
         </div>
         
-        <div className="bg-slate-800 p-4 rounded-lg border border-slate-700">
-          <label className="block text-sm font-medium text-slate-300 mb-2">ASCII</label>
-          <textarea className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-green-400 font-mono h-24 focus:outline-none focus:border-blue-500" placeholder="ABC..."></textarea>
+        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
+          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
+            <span>ASCII String</span>
+            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">Text</span>
+          </label>
+          <textarea 
+            value={ascii}
+            onChange={handleAsciiChange}
+            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
+            placeholder="ABC..."
+          ></textarea>
+        </div>
+
+        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
+          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
+            <span>Base64</span>
+            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">RFC 4648</span>
+          </label>
+          <textarea 
+            value={base64}
+            onChange={handleBase64Change}
+            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
+            placeholder="QUJD..."
+          ></textarea>
+        </div>
+
+        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
+          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
+            <span>URL Encode</span>
+            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">Percent</span>
+          </label>
+          <textarea 
+            value={url}
+            onChange={handleUrlChange}
+            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
+            placeholder="%41%42%43..."
+          ></textarea>
+        </div>
+
+        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
+          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
+            <span>Shellcode</span>
+            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">C Array</span>
+          </label>
+          <textarea 
+            value={shellcode}
+            onChange={handleShellcodeChange}
+            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
+            placeholder="\x41\x42\x43..."
+          ></textarea>
         </div>
       </div>
     </div>

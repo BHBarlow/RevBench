@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+.highlight-c { background-color: rgba(159, 239, 0, 0.15) !important; border-left: 3px solid #00d4ff; }
+.highlight-asm { background-color: rgba(159, 239, 0, 0.15) !important; border-left: 3px solid #00d4ff; }
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #0b101e;
+  background-image: radial-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: #e5e7eb;
+}
+
+::selection {
+  background-color: #00d4ff;
+  color: #0b101e;
 }

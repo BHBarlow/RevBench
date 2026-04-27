@@ -1,0 +1,142 @@
+[
+  {
+    "id": "var-assignment",
+    "title": "1. Variable Assignment",
+    "c_code": "void assign() {\n    int x = 42;\n}",
+    "asm_code": "assign:\n    push    rbp\n    mov     rbp, rsp\n    mov     DWORD PTR [rbp-4], 42\n    nop\n    pop     rbp\n    ret",
+    "steps": [
+      {
+        "c_lines": [1],
+        "asm_lines": [2, 3],
+        "explanation": "FUNCTION PROLOGUE: Every time a function is called, it must set up its own isolated environment called a 'stack frame'. The 'push rbp' instruction saves the Base Pointer of the caller function so we can return to it later. Then, 'mov rbp, rsp' sets the current Stack Pointer to be the new Base Pointer for this function. This defines the starting boundary of our new local workspace."
+      },
+      {
+        "c_lines": [2],
+        "asm_lines": [4],
+        "explanation": "VARIABLE ALLOCATION & ASSIGNMENT: The compiler sees the 'int x = 42;' declaration. Since 'int' is a 32-bit (4-byte) data type in C, it uses 'DWORD PTR' (Double Word Pointer). It calculates an offset from the Base Pointer (rbp-4) to reserve 4 bytes of local stack memory for 'x', and uses the 'mov' instruction to place the immediate decimal value 42 directly into that memory slot."
+      },
+      {
+        "c_lines": [3],
+        "asm_lines": [6, 7],
+        "explanation": "FUNCTION EPILOGUE: When the function concludes, it must clean up its stack frame. The 'pop rbp' instruction restores the original Base Pointer that we saved at the beginning, effectively destroying our local workspace. Finally, the 'ret' (Return) instruction pops the return address off the stack and jumps back to whoever called this function."
+      }
+    ]
+  },
+  {
+    "id": "if-statement",
+    "title": "2. If Statement Branching",
+    "c_code": "void check(int x) {\n    if (x == 5) {\n        x = 99;\n    }\n}",
+    "asm_code": "check:\n    push    rbp\n    mov     rbp, rsp\n    mov     DWORD PTR [rbp-4], edi\n    cmp     DWORD PTR [rbp-4], 5\n    jne     .L2\n    mov     DWORD PTR [rbp-4], 99\n.L2:\n    nop\n    pop     rbp\n    ret",
+    "steps": [
+      {
+        "c_lines": [1],
+        "asm_lines": [2, 3, 4],
+        "explanation": "PROLOGUE & PARAMETER PASSING: After the standard prologue sets up the stack frame (push rbp, mov rbp, rsp), we handle function arguments. In the x86-64 System V ABI, the first integer argument is passed in the 'edi' register. The compiler takes this value from 'edi' and immediately saves it into local stack memory at [rbp-4] so we can safely modify it if needed."
+      },
+      {
+        "c_lines": [2],
+        "asm_lines": [5, 6],
+        "explanation": "COMPARISON & JUMPING: This is the heart of an 'if' statement! The 'cmp' instruction compares our local variable 'x' (at rbp-4) against the immediate value 5. Behind the scenes, 'cmp' subtracts 5 from x and updates the CPU's internal flags (like the Zero Flag). The 'jne .L2' instruction means 'Jump if Not Equal'. If the Zero Flag wasn't set (meaning x was NOT 5), the CPU skips the 'if' block entirely and jumps down to the '.L2' label."
+      },
+      {
+        "c_lines": [3],
+        "asm_lines": [7],
+        "explanation": "EXECUTING THE IF-BLOCK: If 'x' was indeed equal to 5, the 'jne' jump is NOT taken, and execution falls through to this line. We execute 'x = 99;' by moving the immediate value 99 directly into the memory location of 'x' ([rbp-4]), overwriting the old value."
+      },
+      {
+        "c_lines": [5],
+        "asm_lines": [8, 9, 10, 11],
+        "explanation": "LABEL & EPILOGUE: The '.L2:' label is the landing zone for our 'jne' jump. Whether we executed the if-block or jumped over it, we eventually end up here. The function cleans up by popping 'rbp' and returning control back to the caller."
+      }
+    ]
+  },
+  {
+    "id": "array-access",
+    "title": "3. Array Indexing Memory Math",
+    "c_code": "void arrays() {\n    int arr[3];\n    arr[2] = 7;\n}",
+    "asm_code": "arrays:\n    push    rbp\n    mov     rbp, rsp\n    mov     DWORD PTR [rbp-12+8], 7\n    nop\n    pop     rbp\n    ret",
+    "steps": [
+      {
+        "c_lines": [1, 2],
+        "asm_lines": [2, 3],
+        "explanation": "PROLOGUE & STACK ALLOCATION: The compiler sees we need an array of 3 integers. Since each int is 4 bytes, 3 * 4 = 12 bytes of contiguous memory are needed. The compiler implicitly reserves this space on the stack by starting the array at [rbp-12]."
+      },
+      {
+        "c_lines": [3],
+        "asm_lines": [4],
+        "explanation": "POINTER ARITHMETIC: In C, arrays are just raw memory addresses. To access 'arr[2]', the compiler does literal math: it takes the starting address of the array (rbp-12) and adds an offset. The offset is (Index * Data_Size). For index 2 of a 4-byte int, the offset is 8. Therefore, the compiler writes the value 7 directly to [rbp-12 + 8]. Notice there is no bounds checking here—this is exactly how Buffer Overflows happen!"
+      },
+      {
+        "c_lines": [4],
+        "asm_lines": [6, 7],
+        "explanation": "EPILOGUE: The array was local to this function, so when the function ends and the stack frame is destroyed (pop rbp), the memory used by the array is instantly 'freed' and available for the next function to overwrite."
+      }
+    ]
+  },
+  {
+    "id": "for-loop",
+    "title": "4. For Loop Iteration",
+    "c_code": "void loop() {\n    for (int i = 0; i < 3; i++) {\n        // body\n    }\n}",
+    "asm_code": "loop:\n    push    rbp\n    mov     rbp, rsp\n    mov     DWORD PTR [rbp-4], 0\n    jmp     .L2\n.L3:\n    add     DWORD PTR [rbp-4], 1\n.L2:\n    cmp     DWORD PTR [rbp-4], 2\n    jle     .L3\n    nop\n    pop     rbp\n    ret",
+    "steps": [
+      {
+        "c_lines": [1],
+        "asm_lines": [2, 3],
+        "explanation": "PROLOGUE: Standard stack frame setup for the function."
+      },
+      {
+        "c_lines": [2],
+        "asm_lines": [4, 5],
+        "explanation": "LOOP INITIALIZATION: The loop begins by declaring 'int i = 0'. The compiler allocates space at [rbp-4] and moves the value 0 into it. It then immediately executes an unconditional jump ('jmp .L2') to evaluate the loop condition before running the body for the first time."
+      },
+      {
+        "c_lines": [2],
+        "asm_lines": [9, 10],
+        "explanation": "LOOP CONDITION: At label .L2, the 'cmp' instruction checks if 'i' is less than or equal to 2 (which is the optimized equivalent of 'i < 3'). The 'jle' (Jump if Less than or Equal) instruction tells the CPU: if the condition is true, jump back up to label .L3 to execute the loop body. If false, simply fall through and exit the loop."
+      },
+      {
+        "c_lines": [2],
+        "asm_lines": [6, 7],
+        "explanation": "LOOP INCREMENT: After the loop body finishes, execution hits label .L3. This is where 'i++' happens! The 'add' instruction increments the value stored in memory at [rbp-4] by 1. Once incremented, it flows right back down into the condition check at .L2. This cycle of Increment -> Compare -> Jump creates the loop!"
+      },
+      {
+        "c_lines": [5],
+        "asm_lines": [12, 13],
+        "explanation": "EPILOGUE: Once the condition fails (i = 3), the loop breaks, and the function returns."
+      }
+    ]
+  },
+  {
+    "id": "pointer-deref",
+    "title": "5. Pointer Dereferencing",
+    "c_code": "void ptr() {\n    int target = 100;\n    int *p = &target;\n    *p = 50;\n}",
+    "asm_code": "ptr:\n    push    rbp\n    mov     rbp, rsp\n    mov     DWORD PTR [rbp-12], 100\n    lea     rax, [rbp-12]\n    mov     QWORD PTR [rbp-8], rax\n    mov     rax, QWORD PTR [rbp-8]\n    mov     DWORD PTR [rax], 50\n    nop\n    pop     rbp\n    ret",
+    "steps": [
+      {
+        "c_lines": [1],
+        "asm_lines": [2, 3],
+        "explanation": "PROLOGUE: Standard stack frame setup."
+      },
+      {
+        "c_lines": [2],
+        "asm_lines": [4],
+        "explanation": "TARGET ALLOCATION: We allocate an integer 'target' at memory location [rbp-12] and initialize it with the value 100."
+      },
+      {
+        "c_lines": [3],
+        "asm_lines": [5, 6],
+        "explanation": "ADDRESS OF OPERATOR (&): To get the memory address of 'target', the compiler uses the 'lea' (Load Effective Address) instruction. Unlike 'mov', 'lea' doesn't grab the value at the address, it grabs the memory address itself and stores it in the 'rax' register. Next, it takes that 64-bit address from 'rax' and saves it to our pointer variable 'p', which is located at [rbp-8] using a QWORD PTR (Quad Word = 64 bits)."
+      },
+      {
+        "c_lines": [4],
+        "asm_lines": [7, 8],
+        "explanation": "DEREFERENCE OPERATOR (*): We want to change the value AT the address 'p' points to. First, the compiler loads the memory address stored in 'p' ([rbp-8]) back into the 'rax' register. Then, it uses the brackets around [rax] to tell the CPU 'treat the value inside rax as a memory address, go to that location, and insert the value 50'. This successfully overwrites 'target' through the pointer!"
+      },
+      {
+        "c_lines": [5],
+        "asm_lines": [10, 11],
+        "explanation": "EPILOGUE: Function stack teardown and return."
+      }
+    ]
+  }
+]

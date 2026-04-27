@@ -1,4 +1,4 @@
-# ByteBench.dev
+# RevBench.dev
 
 ### The Foundation: Routing & Structure
 
@@ -61,7 +61,7 @@ This is the heavyweight page and where your Go skills shine. It acts as an autom
 The project structure will follow a standard Vite + React setup with a dedicated directory for Go code:
 
 ```text
-ByteBench/
+RevBench/
 ├── cmd/                    # Go source code
 │   └── scanner/            # Go Wasm binary parser
 │       └── main.go         # Go entry point for WebAssembly
