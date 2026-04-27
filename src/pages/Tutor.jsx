@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import scenarios from '../data/scenarios.json';
+import { ExternalLink } from 'lucide-react';
 
 export default function Tutor() {
   const [selectedScenario, setSelectedScenario] = useState(scenarios[0]);
@@ -61,8 +62,21 @@ export default function Tutor() {
 
   return (
     <div className="flex flex-col h-full min-h-[80vh]">
-      <h2 className="text-3xl font-bold mb-2 text-white">C-to-ASM Educational Tutor</h2>
-      <p className="text-slate-400 mb-6">Learn how C code translates to Assembly under the hood.</p>
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h2 className="text-3xl font-bold mb-2 text-white">C-to-ASM Educational Tutor</h2>
+          <p className="text-slate-400">Learn how C code translates to Assembly under the hood.</p>
+        </div>
+        <a 
+          href="https://godbolt.org/" 
+          target="_blank" 
+          rel="noreferrer" 
+          className="bg-[#00d4ff]/10 hover:bg-[#00d4ff]/20 text-[#00d4ff] border border-[#00d4ff]/30 px-4 py-2 rounded-sm font-bold text-sm transition-colors flex items-center gap-2 shadow-lg shadow-[#00d4ff]/10"
+        >
+          Try out yourself
+          <ExternalLink size={16} />
+        </a>
+      </div>
       
       <div className="mb-6 flex items-center">
         <label className="text-slate-300 mr-4 font-semibold">Select Scenario:</label>

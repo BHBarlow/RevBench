@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
-import { Activity, LayoutDashboard, FileCode2, BookOpen, Shield, Server, Terminal } from 'lucide-react';
+import { Activity, LayoutDashboard, FileCode2, BookOpen, Shield, Server, Terminal, Link } from 'lucide-react';
 import Home from './pages/Home';
 import Converter from './pages/Converter';
 import Tutor from './pages/Tutor';
 import Scanner from './pages/Scanner';
 import MemoryGuide from './pages/MemoryGuide';
+import Resources from './pages/Resources';
 
 function App() {
   // Persistent Scanner State
@@ -101,6 +102,12 @@ function App() {
                   <span>Architecture Guide</span>
                 </NavLink>
               </li>
+              <li>
+                <NavLink to="/resources" className={navLinkClass}>
+                  <Link size={18} />
+                  <span>Resources</span>
+                </NavLink>
+              </li>
             </ul>
           </div>
           
@@ -138,6 +145,7 @@ function App() {
                 } 
               />
               <Route path="/memory" element={<MemoryGuide />} />
+              <Route path="/resources" element={<Resources />} />
             </Routes>
           </div>
         </div>

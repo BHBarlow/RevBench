@@ -99,6 +99,37 @@ export default function MemoryGuide() {
                 </ul>
               </div>
             </div>
+
+            <div className="mt-10 bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+              <h4 className="text-2xl font-bold text-white mb-6">Common x86 Instructions</h4>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="bg-black/40 p-4 rounded-lg border border-slate-800 shadow-inner">
+                  <span className="text-emerald-400 font-mono font-bold text-lg">mov</span>
+                  <p className="text-slate-400 text-sm mt-2">Moves data from a source to a destination. Ex: <code className="text-blue-300">mov eax, 5</code> (Set eax to 5)</p>
+                </div>
+                <div className="bg-black/40 p-4 rounded-lg border border-slate-800 shadow-inner">
+                  <span className="text-emerald-400 font-mono font-bold text-lg">add / sub</span>
+                  <p className="text-slate-400 text-sm mt-2">Adds or subtracts values. Ex: <code className="text-blue-300">add rax, rbx</code> (rax = rax + rbx)</p>
+                </div>
+                <div className="bg-black/40 p-4 rounded-lg border border-slate-800 shadow-inner">
+                  <span className="text-emerald-400 font-mono font-bold text-lg">cmp</span>
+                  <p className="text-slate-400 text-sm mt-2">Compares two values by subtracting them behind the scenes to set CPU flags. Used before jumps.</p>
+                </div>
+                <div className="bg-black/40 p-4 rounded-lg border border-slate-800 shadow-inner">
+                  <span className="text-emerald-400 font-mono font-bold text-lg">jmp / je / jne</span>
+                  <p className="text-slate-400 text-sm mt-2">Jumps to a different part of the code. <code className="text-blue-300">jmp</code> is unconditional, <code className="text-blue-300">je</code> jumps if equal, <code className="text-blue-300">jne</code> jumps if not equal.</p>
+                </div>
+                <div className="bg-black/40 p-4 rounded-lg border border-slate-800 shadow-inner">
+                  <span className="text-emerald-400 font-mono font-bold text-lg">push / pop</span>
+                  <p className="text-slate-400 text-sm mt-2">Pushes a value onto the top of the stack, or pops the top value off the stack into a register.</p>
+                </div>
+                <div className="bg-black/40 p-4 rounded-lg border border-slate-800 shadow-inner">
+                  <span className="text-emerald-400 font-mono font-bold text-lg">call / ret</span>
+                  <p className="text-slate-400 text-sm mt-2"><code className="text-blue-300">call</code> jumps to a function and saves the return address. <code className="text-blue-300">ret</code> pops that address and goes back.</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       )}

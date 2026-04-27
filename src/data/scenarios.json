@@ -138,5 +138,56 @@
         "explanation": "EPILOGUE: Function stack teardown and return."
       }
     ]
+  },
+  {
+    "id": "function-call",
+    "title": "6. Function Call & Return",
+    "c_code": "int add(int a, int b) {\n    return a + b;\n}\n\nvoid main() {\n    int result = add(5, 10);\n}",
+    "asm_code": "add:\n    push    rbp\n    mov     rbp, rsp\n    mov     DWORD PTR [rbp-4], edi\n    mov     DWORD PTR [rbp-8], esi\n    mov     edx, DWORD PTR [rbp-4]\n    mov     eax, DWORD PTR [rbp-8]\n    add     eax, edx\n    pop     rbp\n    ret\nmain:\n    push    rbp\n    mov     rbp, rsp\n    sub     rsp, 16\n    mov     esi, 10\n    mov     edi, 5\n    call    add\n    mov     DWORD PTR [rbp-4], eax\n    nop\n    leave\n    ret",
+    "steps": [
+      {
+        "c_lines": [5, 6],
+        "asm_lines": [11, 12, 13, 14, 15, 16],
+        "explanation": "CALLER SETUP: Inside main, we prepare to call 'add(5, 10)'. The x86-64 calling convention requires the first argument (5) to go into 'edi' and the second (10) into 'esi'. Then, 'call add' pushes the return address (the next instruction in main) onto the stack and jumps to the 'add' function."
+      },
+      {
+        "c_lines": [1],
+        "asm_lines": [1, 2, 3, 4, 5],
+        "explanation": "CALLEE PROLOGUE: The 'add' function sets up its own stack frame. It then takes the arguments from 'edi' and 'esi' and saves them to its local stack space at [rbp-4] and [rbp-8]."
+      },
+      {
+        "c_lines": [2],
+        "asm_lines": [6, 7, 8],
+        "explanation": "PERFORMING MATH & RETURNING: To add the numbers, it loads them into 'edx' and 'eax', then executes 'add eax, edx'. In x86, the 'eax' (or 'rax') register is almost ALWAYS used to store the return value of a function. Leaving the result in 'eax' is how we return it to 'main'!"
+      },
+      {
+        "c_lines": [6],
+        "asm_lines": [17],
+        "explanation": "SAVING RESULT: Back in 'main', we know the result is waiting for us in 'eax'. We move the value from 'eax' into our local variable 'result' stored at [rbp-4]."
+      }
+    ]
+  },
+  {
+    "id": "basic-math",
+    "title": "7. Basic Arithmetic",
+    "c_code": "void math() {\n    int a = 10;\n    int b = 3;\n    int add = a + b;\n    int sub = a - b;\n}",
+    "asm_code": "math:\n    push    rbp\n    mov     rbp, rsp\n    mov     DWORD PTR [rbp-4], 10\n    mov     DWORD PTR [rbp-8], 3\n    mov     edx, DWORD PTR [rbp-4]\n    mov     eax, DWORD PTR [rbp-8]\n    add     eax, edx\n    mov     DWORD PTR [rbp-12], eax\n    mov     eax, DWORD PTR [rbp-4]\n    sub     eax, DWORD PTR [rbp-8]\n    mov     DWORD PTR [rbp-16], eax\n    nop\n    pop     rbp\n    ret",
+    "steps": [
+      {
+        "c_lines": [1, 2, 3],
+        "asm_lines": [2, 3, 4, 5],
+        "explanation": "INITIALIZATION: We allocate space for 'a' and 'b' and assign them 10 and 3."
+      },
+      {
+        "c_lines": [4],
+        "asm_lines": [6, 7, 8, 9],
+        "explanation": "ADDITION: Notice that we can't just do 'add [rbp-4], [rbp-8]'. x86 doesn't allow memory-to-memory operations directly. We must first load them into registers (edx and eax), perform 'add eax, edx', and then store the result from 'eax' into the local variable 'add' at [rbp-12]."
+      },
+      {
+        "c_lines": [5],
+        "asm_lines": [10, 11, 12],
+        "explanation": "SUBTRACTION: Similar to addition, we load 'a' into 'eax', and then subtract 'b' from it using 'sub eax, DWORD PTR [rbp-8]'. The result is saved to [rbp-16]."
+      }
+    ]
   }
 ]
