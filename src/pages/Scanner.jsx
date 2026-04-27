@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Upload, FileCode2, Hash, Code, BookTemplate, Layers, Download } from 'lucide-react';
+import { Upload, FileCode2, Hash, Code, BookTemplate, Layers, Download, Search } from 'lucide-react';
 
 const categorizeImport = (imp) => {
   const lower = imp.toLowerCase();
@@ -12,6 +12,7 @@ const categorizeImport = (imp) => {
 
 export default function Scanner({ result, setResult, expectedHash, setExpectedHash, isWasmLoaded, error, setError }) {
   const [isDragging, setIsDragging] = useState(false);
+  const [stringSearch, setStringSearch] = useState('');
   const fileInputRef = useRef(null);
 
   const handleExportHTML = () => {
@@ -126,6 +127,21 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
             </div>
         </div>
 
+        <!-- Data Section -->
+        ${result.data_section ? `
+        <div class="card p-6 rounded-sm shadow-xl mb-8">
+            <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-700/50 pb-3 flex items-center justify-between">
+                <span class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    .data Section (objdump -s -j .data)
+                </span>
+            </h3>
+            <div class="max-h-[500px] overflow-y-auto bg-slate-900/30 p-4 rounded border border-slate-800 custom-scrollbar">
+                <pre class="font-mono text-[11px] text-slate-400 whitespace-pre-wrap">${result.data_section.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+            </div>
+        </div>
+        ` : ''}
+
         <!-- Strings -->
         <div class="card p-6 rounded-sm shadow-xl">
             <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-700/50 pb-3 flex items-center justify-between">
@@ -221,7 +237,7 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
   };
 
   return (
-    <div className="flex flex-col h-full max-w-6xl mx-auto">
+    <div className="flex flex-col h-full max-w-full px-6 mx-auto">
       <div className="mb-8 flex justify-between items-end">
         <div>
           <h2 className="text-3xl font-bold mb-2 text-white">Static Binary Analyzer</h2>
@@ -386,7 +402,7 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
           </div>
 
           {/* Imports Table */}
-          <div className="md:col-span-2 lg:col-span-3 bg-[#111928] border border-[#1f2937] border-t-2 border-t-[#00d4ff] shadow-xl shadow-black/40 p-6 rounded-sm flex flex-col h-80">
+          <div className="md:col-span-2 lg:col-span-3 bg-[#111928] border border-[#1f2937] border-t-2 border-t-[#00d4ff] shadow-xl shadow-black/40 p-6 rounded-sm flex flex-col h-[500px]">
             <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-700/80">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-orange-500/20 rounded-lg">
@@ -405,7 +421,7 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
                   {result.imports.map((imp, idx) => {
                     const catInfo = categorizeImport(imp);
                     return (
-                      <li key={idx} className={`p-2 rounded border font-mono text-xs flex justify-between items-center transition-colors ${catInfo.bg} ${catInfo.border} hover:bg-slate-700`}>
+                      <li key={idx} className={`p-2 rounded border font-mono text-sm flex justify-between items-center transition-colors ${catInfo.bg} ${catInfo.border} hover:bg-slate-700`}>
                         <span className="text-slate-200 truncate mr-2" title={imp}>{imp}</span>
                         {catInfo.cat !== 'Standard' && (
                           <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${catInfo.color} bg-black/30 whitespace-nowrap`}>
@@ -450,7 +466,7 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
           </div>
 
           {/* Internal Symbols */}
-          <div className="md:col-span-2 lg:col-span-3 bg-[#111928] border border-[#1f2937] border-t-2 border-t-[#00d4ff] shadow-xl shadow-black/40 p-6 rounded-sm flex flex-col h-80">
+          <div className="md:col-span-2 lg:col-span-3 bg-[#111928] border border-[#1f2937] border-t-2 border-t-[#00d4ff] shadow-xl shadow-black/40 p-6 rounded-sm flex flex-col h-[500px]">
             <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-700/80">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-yellow-500/20 rounded-lg">
@@ -467,7 +483,7 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
               {result.symbols && result.symbols.length > 0 ? (
                 <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 p-3">
                   {result.symbols.map((sym, idx) => (
-                    <li key={idx} className="p-2 rounded border border-slate-700/50 font-mono text-xs text-slate-300 bg-slate-800/30 hover:bg-slate-700 transition-colors truncate" title={sym}>
+                    <li key={idx} className="p-2 rounded border border-slate-700/50 font-mono text-sm text-slate-300 bg-slate-800/30 hover:bg-slate-700 transition-colors truncate" title={sym}>
                       {sym}
                     </li>
                   ))}
@@ -482,24 +498,38 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
           </div>
 
           {/* Extracted Strings Table */}
-          <div className="md:col-span-2 lg:col-span-3 bg-[#111928] border border-[#1f2937] border-t-2 border-t-[#00d4ff] shadow-xl shadow-black/40 p-6 rounded-sm flex flex-col h-96">
-            <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-700/80">
+          <div className="md:col-span-2 lg:col-span-3 bg-[#111928] border border-[#1f2937] border-t-2 border-t-[#00d4ff] shadow-xl shadow-black/40 p-6 rounded-sm flex flex-col h-[600px]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 pb-4 border-b border-slate-700/80 gap-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-500/20 rounded-lg">
                   <Code className="text-purple-400" size={20} />
                 </div>
                 <h3 className="text-xl font-bold text-white">Extracted Strings</h3>
               </div>
-              <div className="text-sm font-medium text-purple-300 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30">
-                {result.strings.length} strings found
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="h-4 w-4 text-slate-500" />
+                  </div>
+                  <input
+                    type="text"
+                    value={stringSearch}
+                    onChange={(e) => setStringSearch(e.target.value)}
+                    placeholder="Search strings..."
+                    className="block w-full sm:w-64 pl-10 pr-3 py-2 border border-[#1f2937] rounded-sm leading-5 bg-[#0b101e] text-slate-300 placeholder-slate-500 focus:outline-none focus:border-[#00d4ff] transition duration-150 ease-in-out sm:text-sm"
+                  />
+                </div>
+                <div className="text-sm font-medium text-purple-300 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30 whitespace-nowrap">
+                  {result.strings.filter(s => s.toLowerCase().includes(stringSearch.toLowerCase())).length} strings found
+                </div>
               </div>
             </div>
             
             <div className="flex-1 overflow-y-auto pr-2 rounded-lg border border-slate-800 bg-slate-900/30">
               {result.strings.length > 0 ? (
                 <ul className="divide-y divide-slate-800/80">
-                  {result.strings.map((str, idx) => (
-                    <li key={idx} className="p-3 font-mono text-sm text-slate-300 hover:bg-slate-800/50 hover:text-white transition-colors break-all">
+                  {result.strings.filter(s => s.toLowerCase().includes(stringSearch.toLowerCase())).map((str, idx) => (
+                    <li key={idx} className="p-3 font-mono text-base text-slate-300 hover:bg-slate-800/50 hover:text-white transition-colors break-all">
                       {str}
                     </li>
                   ))}
@@ -511,6 +541,24 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
               )}
             </div>
           </div>
+
+          {/* Data Section Dump (objdump-lite) */}
+          {result.data_section && (
+            <div className="md:col-span-2 lg:col-span-3 bg-[#111928] border border-[#1f2937] border-t-2 border-t-[#00d4ff] shadow-xl shadow-black/40 p-6 rounded-sm flex flex-col h-[600px]">
+              <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-700/80">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-500/20 rounded-lg">
+                    <Code className="text-indigo-400" size={20} />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">.data Section (objdump -s -j .data)</h3>
+                </div>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto pr-2 rounded-lg border border-slate-800 bg-slate-900/30">
+                <pre className="p-3 font-mono text-base text-slate-300 break-all whitespace-pre-wrap">{result.data_section}</pre>
+              </div>
+            </div>
+          )}
 
         </div>
       )}

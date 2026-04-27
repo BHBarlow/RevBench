@@ -20,6 +20,7 @@ type ScannerResult struct {
 	Symbols       []string          `json:"symbols"`
 	Strings       []string          `json:"strings"`
 	EmbeddedFiles []EmbeddedFile    `json:"embedded_files"`
+	DataSection   string            `json:"data_section,omitempty"`
 	ErrorMsg      string            `json:"error,omitempty"`
 }
 
@@ -170,6 +171,16 @@ func parseBinary(this js.Value, args []js.Value) interface{} {
 			for _, s := range impSyms {
 				result.Imports = append(result.Imports, s.Name)
 			}
+
+			if sect := f.Section(".data"); sect != nil {
+				dataBytes, err := sect.Data()
+				if err == nil {
+					if len(dataBytes) > 4096 {
+						dataBytes = dataBytes[:4096]
+					}
+					result.DataSection = hex.Dump(dataBytes)
+				}
+			}
 		}
 	} else if len(data) > 2 && string(data[0:2]) == "MZ" {
 		result.Info.Format = "PE"
@@ -203,6 +214,16 @@ func parseBinary(this js.Value, args []js.Value) interface{} {
 			impSyms, _ := peFile.ImportedSymbols()
 			for _, s := range impSyms {
 				result.Imports = append(result.Imports, s)
+			}
+
+			if sect := peFile.Section(".data"); sect != nil {
+				dataBytes, err := sect.Data()
+				if err == nil {
+					if len(dataBytes) > 4096 {
+						dataBytes = dataBytes[:4096]
+					}
+					result.DataSection = hex.Dump(dataBytes)
+				}
 			}
 			
 			if peFile.FileHeader.TimeDateStamp != 0 {

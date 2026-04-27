@@ -118,7 +118,7 @@ function App() {
 
         {/* Main Content Area */}
         <div className="flex-1 overflow-auto bg-[#0b101e]">
-          <div className="p-8 h-full max-w-7xl mx-auto">
+          <div className="p-8 h-full w-full">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/converter" element={<Converter />} />
