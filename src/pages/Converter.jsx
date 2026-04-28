@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Maximize2, X } from 'lucide-react';
 
 export default function Converter() {
   const [hex, setHex] = useState('');
@@ -7,6 +8,7 @@ export default function Converter() {
   const [base64, setBase64] = useState('');
   const [url, setUrl] = useState('');
   const [shellcode, setShellcode] = useState('');
+  const [expandedField, setExpandedField] = useState(null);
 
   const bytesToBase64 = (bytes) => {
     try {
@@ -121,6 +123,15 @@ export default function Converter() {
     } catch (err) {}
   };
 
+  const fields = [
+    { id: 'hex', label: 'Hexadecimal', tag: 'Base-16', value: hex, onChange: handleHexChange, placeholder: '41 42 43...' },
+    { id: 'bin', label: 'Binary', tag: 'Base-2', value: bin, onChange: handleBinChange, placeholder: '01000001 01000010...' },
+    { id: 'ascii', label: 'ASCII String', tag: 'Text', value: ascii, onChange: handleAsciiChange, placeholder: 'ABC...' },
+    { id: 'base64', label: 'Base64', tag: 'RFC 4648', value: base64, onChange: handleBase64Change, placeholder: 'QUJD...' },
+    { id: 'url', label: 'URL Encode', tag: 'Percent', value: url, onChange: handleUrlChange, placeholder: '%41%42%43...' },
+    { id: 'shellcode', label: 'Shellcode', tag: 'C Array', value: shellcode, onChange: handleShellcodeChange, placeholder: '\\x41\\x42\\x43...' },
+  ];
+
   return (
     <div className="flex flex-col h-full max-w-7xl mx-auto pb-12">
       <div className="mb-8">
@@ -128,85 +139,67 @@ export default function Converter() {
         <p className="text-slate-400">Instantly translate payloads between 6 common formats in real-time. No server calls.</p>
       </div>
       
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
-          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
-            <span>Hexadecimal</span>
-            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">Base-16</span>
-          </label>
-          <textarea 
-            value={hex}
-            onChange={handleHexChange}
-            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
-            placeholder="41 42 43..."
-          ></textarea>
-        </div>
-        
-        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
-          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
-            <span>Binary</span>
-            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">Base-2</span>
-          </label>
-          <textarea 
-            value={bin}
-            onChange={handleBinChange}
-            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
-            placeholder="01000001 01000010..."
-          ></textarea>
-        </div>
-        
-        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
-          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
-            <span>ASCII String</span>
-            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">Text</span>
-          </label>
-          <textarea 
-            value={ascii}
-            onChange={handleAsciiChange}
-            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
-            placeholder="ABC..."
-          ></textarea>
-        </div>
-
-        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
-          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
-            <span>Base64</span>
-            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">RFC 4648</span>
-          </label>
-          <textarea 
-            value={base64}
-            onChange={handleBase64Change}
-            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
-            placeholder="QUJD..."
-          ></textarea>
-        </div>
-
-        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
-          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
-            <span>URL Encode</span>
-            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">Percent</span>
-          </label>
-          <textarea 
-            value={url}
-            onChange={handleUrlChange}
-            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
-            placeholder="%41%42%43..."
-          ></textarea>
-        </div>
-
-        <div className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200">
-          <label className="flex items-center justify-between text-sm font-bold tracking-wider text-gray-300 uppercase mb-3">
-            <span>Shellcode</span>
-            <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">C Array</span>
-          </label>
-          <textarea 
-            value={shellcode}
-            onChange={handleShellcodeChange}
-            className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono h-32 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none" 
-            placeholder="\x41\x42\x43..."
-          ></textarea>
-        </div>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1">
+        {fields.map((field) => (
+          <div key={field.id} className="bg-[#111928] p-5 rounded-sm border border-[#1f2937] focus-within:border-[#00d4ff] transition-all duration-200 flex flex-col h-full">
+            <div className="flex items-center justify-between mb-3">
+              <label className="flex items-center space-x-3 text-sm font-bold tracking-wider text-gray-300 uppercase">
+                <span>{field.label}</span>
+                <span className="text-xs bg-[#0b101e] px-2 py-0.5 rounded text-gray-500 font-medium">{field.tag}</span>
+              </label>
+              <button 
+                onClick={() => setExpandedField(field.id)} 
+                className="text-gray-500 hover:text-[#00d4ff] transition-colors p-1"
+                title="Expand"
+              >
+                <Maximize2 size={16} />
+              </button>
+            </div>
+            <textarea 
+              value={field.value}
+              onChange={field.onChange}
+              className="w-full bg-[#0b101e] border border-[#1f2937] rounded-sm p-4 text-[#00d4ff] font-mono flex-1 focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none min-h-[8rem]" 
+              placeholder={field.placeholder}
+              spellCheck={false}
+            ></textarea>
+          </div>
+        ))}
       </div>
+
+      {/* Expanded Modal */}
+      {expandedField && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#111928] border border-[#1f2937] rounded-lg w-full max-w-6xl h-[85vh] flex flex-col shadow-2xl shadow-black/50 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-4 border-b border-[#1f2937] bg-[#0b101e] rounded-t-lg">
+              <div className="flex items-center space-x-3">
+                <h3 className="text-xl font-bold text-white tracking-wide uppercase">
+                  {fields.find(f => f.id === expandedField)?.label}
+                </h3>
+                <span className="text-sm bg-[#111928] border border-[#1f2937] px-3 py-1 rounded text-gray-400 font-medium">
+                  Expanded View
+                </span>
+              </div>
+              <button 
+                onClick={() => setExpandedField(null)} 
+                className="p-2 text-gray-400 hover:text-white hover:bg-[#1f2937] rounded-md transition-all"
+                title="Close"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="flex-1 p-6 bg-[#0b101e] rounded-b-lg">
+              <textarea
+                value={fields.find(f => f.id === expandedField)?.value}
+                onChange={fields.find(f => f.id === expandedField)?.onChange}
+                className="w-full h-full bg-[#111928] border border-[#1f2937] rounded-md p-6 text-[#00d4ff] font-mono text-lg focus:outline-none focus:border-[#00d4ff] custom-scrollbar resize-none shadow-inner"
+                placeholder={fields.find(f => f.id === expandedField)?.placeholder}
+                spellCheck={false}
+                autoFocus
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
