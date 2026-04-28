@@ -27,7 +27,7 @@ function App() {
     const loadWasm = async () => {
       try {
         const go = new window.Go();
-        const response = await fetch('/wasm/scanner.wasm');
+        const response = await fetch(`/wasm/scanner.wasm?t=${new Date().getTime()}`);
         if (!response.ok) throw new Error("Wasm file not found");
         const buffer = await response.arrayBuffer();
         const result = await WebAssembly.instantiate(buffer, go.importObject);

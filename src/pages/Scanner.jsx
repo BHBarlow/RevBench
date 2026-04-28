@@ -10,9 +10,22 @@ const categorizeImport = (imp) => {
   return { cat: 'Standard', color: 'text-slate-400', bg: 'bg-slate-700/50', border: 'border-slate-600' };
 };
 
+const highlightMatch = (text, search) => {
+  if (!search) return text;
+  const parts = text.split(new RegExp(`(${search})`, 'gi'));
+  return parts.map((part, index) => 
+    part.toLowerCase() === search.toLowerCase() ? (
+      <span key={index} className="bg-[#00d4ff]/30 text-[#00d4ff] font-bold rounded-sm px-0.5">{part}</span>
+    ) : (
+      part
+    )
+  );
+};
+
 export default function Scanner({ result, setResult, expectedHash, setExpectedHash, isWasmLoaded, error, setError }) {
   const [isDragging, setIsDragging] = useState(false);
   const [stringSearch, setStringSearch] = useState('');
+  const [minStringLength, setMinStringLength] = useState(4);
   const [rawBinaryData, setRawBinaryData] = useState(null);
   const [pattern, setPattern] = useState('');
   const [patternMatches, setPatternMatches] = useState(null);
@@ -215,7 +228,7 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
       const uint8Array = new Uint8Array(buffer);
       setRawBinaryData(uint8Array);
       
-      const jsonResult = window.RevBench_parseBinary(uint8Array);
+      const jsonResult = window.RevBench_parseBinary(uint8Array, minStringLength);
       const parsed = JSON.parse(jsonResult);
       
       if (parsed.error) {
@@ -247,6 +260,21 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
       }
     } catch (err) {
       setPatternError("Scan failed: " + err.message);
+    }
+  };
+
+  const handleRefreshStrings = () => {
+    if (!rawBinaryData) return;
+    try {
+      const jsonResult = window.RevBench_parseBinary(rawBinaryData, minStringLength);
+      const parsed = JSON.parse(jsonResult);
+      if (parsed.error) {
+        setError(parsed.error);
+      } else {
+        setResult(parsed);
+      }
+    } catch (err) {
+      setError("Error processing file: " + err.message);
     }
   };
 
@@ -592,6 +620,22 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
                 <h3 className="text-xl font-bold text-white">Extracted Strings</h3>
               </div>
               <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">Min Length:</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={minStringLength}
+                    onChange={(e) => setMinStringLength(parseInt(e.target.value) || 4)}
+                    className="w-16 bg-[#0b101e] border border-[#1f2937] rounded-sm p-1.5 text-[#00d4ff] font-mono text-sm focus:outline-none focus:border-[#00d4ff] transition duration-150 ease-in-out"
+                  />
+                  <button
+                    onClick={handleRefreshStrings}
+                    className="bg-purple-500/20 hover:bg-purple-500/40 text-purple-400 border border-purple-500/30 px-3 py-1.5 rounded-sm font-bold uppercase tracking-wider text-xs transition-colors"
+                  >
+                    Refresh
+                  </button>
+                </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Search className="h-4 w-4 text-slate-500" />
@@ -615,7 +659,7 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
                 <ul className="divide-y divide-slate-800/80">
                   {result.strings.filter(s => s.toLowerCase().includes(stringSearch.toLowerCase())).map((str, idx) => (
                     <li key={idx} className="p-3 font-mono text-base text-slate-300 hover:bg-slate-800/50 hover:text-white transition-colors break-all">
-                      {str}
+                      {highlightMatch(str, stringSearch)}
                     </li>
                   ))}
                 </ul>

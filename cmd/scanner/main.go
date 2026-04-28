@@ -41,11 +41,14 @@ type EmbeddedFile struct {
 	Type   string `json:"type"`
 }
 
-func extractStrings(data []byte) []string {
-	re := regexp.MustCompile(`[ -~]{4,}`)
+func extractStrings(data []byte, minLength int) []string {
+	if minLength < 1 {
+		minLength = 4
+	}
+	re := regexp.MustCompile(fmt.Sprintf(`[ -~]{%d,}`, minLength))
 	matches := re.FindAll(data, -1)
 	
-	limit := 1000
+	limit := 10000
 	var result []string
 	for i, m := range matches {
 		if i >= limit {
@@ -107,6 +110,11 @@ func parseBinary(this js.Value, args []js.Value) interface{} {
 	data := make([]byte, length)
 	js.CopyBytesToGo(data, jsData)
 
+	minLength := 4
+	if len(args) > 1 && args[1].Type() == js.TypeNumber {
+		minLength = args[1].Int()
+	}
+
 	result := ScannerResult{
 		Hashes: map[string]string{
 			"sha256": calculateSHA256(data),
@@ -122,7 +130,7 @@ func parseBinary(this js.Value, args []js.Value) interface{} {
 		},
 		Imports:       []string{},
 		Symbols:       []string{},
-		Strings:       extractStrings(data),
+		Strings:       extractStrings(data, minLength),
 		EmbeddedFiles: findEmbeddedFiles(data),
 	}
 
