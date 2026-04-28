@@ -1,0 +1,149 @@
+[
+  {
+    "mnemonic": "MOV",
+    "description": "Moves data from a source location to a destination location. Despite the name, it copies the data; the source remains unchanged. Cannot move memory to memory directly.",
+    "syntax": "MOV dest, src",
+    "flags": "None",
+    "category": "Data Transfer"
+  },
+  {
+    "mnemonic": "LEA",
+    "description": "Load Effective Address. Calculates the memory address of the source operand and loads it into the destination register. Often used for pointer arithmetic without accessing memory.",
+    "syntax": "LEA dest, [src]",
+    "flags": "None",
+    "category": "Data Transfer"
+  },
+  {
+    "mnemonic": "PUSH",
+    "description": "Pushes a value onto the top of the stack. Decrements the stack pointer (RSP) by the operand size and stores the operand at the new RSP location.",
+    "syntax": "PUSH src",
+    "flags": "None",
+    "category": "Stack"
+  },
+  {
+    "mnemonic": "POP",
+    "description": "Pops a value from the top of the stack into a destination. Copies the data at the current stack pointer (RSP) to the destination, then increments RSP.",
+    "syntax": "POP dest",
+    "flags": "None",
+    "category": "Stack"
+  },
+  {
+    "mnemonic": "ADD",
+    "description": "Adds the source operand to the destination operand, storing the result in the destination.",
+    "syntax": "ADD dest, src",
+    "flags": "OF, SF, ZF, AF, CF, PF",
+    "category": "Arithmetic"
+  },
+  {
+    "mnemonic": "SUB",
+    "description": "Subtracts the source operand from the destination operand, storing the result in the destination.",
+    "syntax": "SUB dest, src",
+    "flags": "OF, SF, ZF, AF, CF, PF",
+    "category": "Arithmetic"
+  },
+  {
+    "mnemonic": "INC",
+    "description": "Increments the operand by 1. Often used for loop counters.",
+    "syntax": "INC dest",
+    "flags": "OF, SF, ZF, AF, PF (Note: CF is NOT affected)",
+    "category": "Arithmetic"
+  },
+  {
+    "mnemonic": "DEC",
+    "description": "Decrements the operand by 1.",
+    "syntax": "DEC dest",
+    "flags": "OF, SF, ZF, AF, PF (Note: CF is NOT affected)",
+    "category": "Arithmetic"
+  },
+  {
+    "mnemonic": "CMP",
+    "description": "Compares the destination to the source by performing a subtraction (dest - src), but discards the result. It only updates the CPU flags, which are typically checked by a subsequent jump instruction.",
+    "syntax": "CMP dest, src",
+    "flags": "OF, SF, ZF, AF, CF, PF",
+    "category": "Comparison"
+  },
+  {
+    "mnemonic": "TEST",
+    "description": "Performs a bitwise AND between the two operands, discarding the result and only updating flags. Often used as 'TEST RAX, RAX' to check if a register is zero.",
+    "syntax": "TEST dest, src",
+    "flags": "SF, ZF, PF (Clears OF, CF)",
+    "category": "Comparison"
+  },
+  {
+    "mnemonic": "JMP",
+    "description": "Unconditional jump. Transfers control to the specified address.",
+    "syntax": "JMP target",
+    "flags": "None",
+    "category": "Control Flow"
+  },
+  {
+    "mnemonic": "JE / JZ",
+    "description": "Jump if Equal / Jump if Zero. Jumps to the target if the Zero Flag (ZF) is set to 1.",
+    "syntax": "JE target",
+    "flags": "None",
+    "category": "Control Flow"
+  },
+  {
+    "mnemonic": "JNE / JNZ",
+    "description": "Jump if Not Equal / Jump if Not Zero. Jumps to the target if the Zero Flag (ZF) is 0.",
+    "syntax": "JNE target",
+    "flags": "None",
+    "category": "Control Flow"
+  },
+  {
+    "mnemonic": "JG / JNLE",
+    "description": "Jump if Greater (Signed). Jumps if ZF=0 and SF=OF.",
+    "syntax": "JG target",
+    "flags": "None",
+    "category": "Control Flow"
+  },
+  {
+    "mnemonic": "JL / JNGE",
+    "description": "Jump if Less (Signed). Jumps if SF != OF.",
+    "syntax": "JL target",
+    "flags": "None",
+    "category": "Control Flow"
+  },
+  {
+    "mnemonic": "CALL",
+    "description": "Calls a procedure. Pushes the return address (the instruction immediately following the CALL) onto the stack, then jumps to the target address.",
+    "syntax": "CALL target",
+    "flags": "None",
+    "category": "Control Flow"
+  },
+  {
+    "mnemonic": "RET",
+    "description": "Returns from a procedure. Pops the return address off the stack and jumps to it.",
+    "syntax": "RET",
+    "flags": "None",
+    "category": "Control Flow"
+  },
+  {
+    "mnemonic": "AND",
+    "description": "Performs a bitwise AND operation between destination and source, storing the result in the destination.",
+    "syntax": "AND dest, src",
+    "flags": "SF, ZF, PF (Clears OF, CF)",
+    "category": "Logical"
+  },
+  {
+    "mnemonic": "OR",
+    "description": "Performs a bitwise OR operation between destination and source, storing the result in the destination.",
+    "syntax": "OR dest, src",
+    "flags": "SF, ZF, PF (Clears OF, CF)",
+    "category": "Logical"
+  },
+  {
+    "mnemonic": "XOR",
+    "description": "Performs a bitwise Exclusive-OR operation. Often used to clear a register to zero by XORing it with itself (e.g., XOR EAX, EAX).",
+    "syntax": "XOR dest, src",
+    "flags": "SF, ZF, PF (Clears OF, CF)",
+    "category": "Logical"
+  },
+  {
+    "mnemonic": "NOP",
+    "description": "No Operation. Does absolutely nothing. Often used for padding or alignment.",
+    "syntax": "NOP",
+    "flags": "None",
+    "category": "Miscellaneous"
+  }
+]

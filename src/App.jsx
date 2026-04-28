@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
-import { Activity, LayoutDashboard, FileCode2, BookOpen, Shield, Server, Terminal, Link } from 'lucide-react';
+import { Activity, LayoutDashboard, FileCode2, BookOpen, Shield, Server, Terminal, Link, BookText, Cpu } from 'lucide-react';
 import Home from './pages/Home';
 import Converter from './pages/Converter';
 import Tutor from './pages/Tutor';
 import Scanner from './pages/Scanner';
 import MemoryGuide from './pages/MemoryGuide';
 import Resources from './pages/Resources';
+import Dictionary from './pages/Dictionary';
+import Simulator from './pages/Simulator';
 
 function App() {
   // Persistent Scanner State
@@ -85,15 +87,25 @@ function App() {
                 </NavLink>
               </li>
               <li>
+                <NavLink to="/scanner" className={navLinkClass}>
+                  <Shield size={18} />
+                  <span>Static Analyzer</span>
+                </NavLink>
+              </li>
+              
+              <div className="pt-6 pb-2">
+                <p className="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Learning Resources</p>
+              </div>
+              <li>
                 <NavLink to="/tutor" className={navLinkClass}>
                   <BookOpen size={18} />
                   <span>C-to-ASM Tutor</span>
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/scanner" className={navLinkClass}>
-                  <Shield size={18} />
-                  <span>Static Analyzer</span>
+                <NavLink to="/simulator" className={navLinkClass}>
+                  <Cpu size={18} />
+                  <span>CPU Simulator</span>
                 </NavLink>
               </li>
               <li>
@@ -103,9 +115,15 @@ function App() {
                 </NavLink>
               </li>
               <li>
+                <NavLink to="/dictionary" className={navLinkClass}>
+                  <BookText size={18} />
+                  <span>Opcode Dictionary</span>
+                </NavLink>
+              </li>
+              <li>
                 <NavLink to="/resources" className={navLinkClass}>
                   <Link size={18} />
-                  <span>Resources</span>
+                  <span>External Resources</span>
                 </NavLink>
               </li>
             </ul>
@@ -144,7 +162,9 @@ function App() {
                   />
                 } 
               />
+              <Route path="/simulator" element={<Simulator />} />
               <Route path="/memory" element={<MemoryGuide />} />
+              <Route path="/dictionary" element={<Dictionary />} />
               <Route path="/resources" element={<Resources />} />
             </Routes>
           </div>

@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strconv"
+	"strings"
 	"syscall/js"
 	"time"
 )
@@ -255,9 +257,83 @@ func errorJSON(msg string) string {
 	return string(jsonBytes)
 }
 
+func parseHexPattern(patternStr string) ([]uint16, error) {
+	var pattern []uint16
+	// Normalize pattern: replace ? with ??, uppercase
+	patternStr = strings.ToUpper(patternStr)
+	parts := strings.Fields(patternStr)
+	for _, p := range parts {
+		if p == "??" || p == "?" {
+			pattern = append(pattern, 256) // 256 acts as our wildcard
+		} else {
+			b, err := strconv.ParseUint(p, 16, 8)
+			if err != nil {
+				return nil, fmt.Errorf("invalid hex byte: %s", p)
+			}
+			pattern = append(pattern, uint16(b))
+		}
+	}
+	return pattern, nil
+}
+
+func matchPattern(data []byte, pattern []uint16) []int {
+	var matches []int
+	if len(pattern) == 0 || len(data) < len(pattern) {
+		return matches
+	}
+	
+	for i := 0; i <= len(data)-len(pattern); i++ {
+		match := true
+		for j, p := range pattern {
+			if p != 256 && data[i+j] != byte(p) {
+				match = false
+				break
+			}
+		}
+		if match {
+			matches = append(matches, i)
+			if len(matches) >= 100 { // limit to 100 matches to prevent UI lag
+				break
+			}
+		}
+	}
+	return matches
+}
+
+func scanPattern(this js.Value, args []js.Value) interface{} {
+	if len(args) < 2 {
+		return `{"error": "Need data and pattern"}`
+	}
+
+	jsData := args[0]
+	length := jsData.Get("length").Int()
+	data := make([]byte, length)
+	js.CopyBytesToGo(data, jsData)
+
+	patternStr := args[1].String()
+	pattern, err := parseHexPattern(patternStr)
+	if err != nil {
+		return fmt.Sprintf(`{"error": "%s"}`, err.Error())
+	}
+
+	matches := matchPattern(data, pattern)
+	
+	var hexMatches []string
+	for _, m := range matches {
+		hexMatches = append(hexMatches, fmt.Sprintf("0x%X", m))
+	}
+	
+	result := map[string]interface{}{
+		"matches": hexMatches,
+	}
+	jsonBytes, _ := json.Marshal(result)
+	return string(jsonBytes)
+}
+
 func main() {
 	c := make(chan struct{}, 0)
 	fmt.Println("RevBench Scanner Wasm Initialized")
 	js.Global().Set("RevBench_parseBinary", js.FuncOf(parseBinary))
+	js.Global().Set("RevBench_scanPattern", js.FuncOf(scanPattern))
 	<-c
 }

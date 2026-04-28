@@ -1,0 +1,454 @@
+[
+  {
+    "id": "function-call",
+    "name": "Function Call & Stack Frame",
+    "description": "Visualizes how a function sets up a local workspace (stack frame) using the Base Pointer (RBP) and Stack Pointer (RSP).",
+    "code": [
+      "CALL calculate    ; Push return addr & jump",
+      "MOV RBX, RAX      ; Save result",
+      "HLT               ; End of program",
+      "calculate:",
+      "PUSH RBP          ; Save caller's base pointer",
+      "MOV RBP, RSP      ; Set new base pointer",
+      "SUB RSP, 8        ; Allocate local variables",
+      "MOV [RBP-8], 42   ; Write to local var",
+      "MOV RAX, [RBP-8]  ; Read from local var",
+      "MOV RSP, RBP      ; Deallocate locals",
+      "POP RBP           ; Restore caller's base pointer",
+      "RET               ; Pop return addr & jump back"
+    ],
+    "initial_state": {
+      "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+      "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+      "stack": []
+    },
+    "steps": [
+      {
+        "line": 0,
+        "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00007FF8", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FF8", "value": "0x0040001A (Ret Addr)" }
+        ],
+        "explanation": "CALL calculate: The CPU pushes the 'return address' (the address of the next instruction, 'MOV RBX, RAX') onto the stack so it knows where to go back to after the function is done. RSP decreases by 8."
+      },
+      {
+        "line": 4,
+        "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00007FF0", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FF0", "value": "0x00008000 (Old RBP)" },
+          { "address": "0x00007FF8", "value": "0x0040001A (Ret Addr)" }
+        ],
+        "explanation": "PUSH RBP (Prologue): We are now inside the function! First, we save the caller's Base Pointer (RBP) onto the stack. This protects the caller's environment."
+      },
+      {
+        "line": 5,
+        "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00007FF0", "RBP": "0x00007FF0" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FF0", "value": "0x00008000 (Old RBP)" },
+          { "address": "0x00007FF8", "value": "0x0040001A (Ret Addr)" }
+        ],
+        "explanation": "MOV RBP, RSP (Prologue): We set the Base Pointer (RBP) to equal the current Stack Pointer (RSP). RBP now acts as a stable 'anchor' point for our new local workspace (the Stack Frame). Notice RBP and RSP are now identical."
+      },
+      {
+        "line": 6,
+        "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00007FE8", "RBP": "0x00007FF0" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FE8", "value": "0x00000000 (Uninitialized)" },
+          { "address": "0x00007FF0", "value": "0x00008000 (Old RBP)" },
+          { "address": "0x00007FF8", "value": "0x0040001A (Ret Addr)" }
+        ],
+        "explanation": "SUB RSP, 8: We subtract 8 from RSP to reserve 8 bytes of space on the stack for local variables. RBP stays still, pointing to the start of our frame, while RSP drops down to make room."
+      },
+      {
+        "line": 7,
+        "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00007FE8", "RBP": "0x00007FF0" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FE8", "value": "0x0000002A (Decimal 42)" },
+          { "address": "0x00007FF0", "value": "0x00008000 (Old RBP)" },
+          { "address": "0x00007FF8", "value": "0x0040001A (Ret Addr)" }
+        ],
+        "explanation": "MOV [RBP-8], 42: We write the value 42 (0x2A) into our local variable space. We find this space by calculating 'RBP minus 8'."
+      },
+      {
+        "line": 8,
+        "registers": { "RAX": "0x0000002A", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00007FE8", "RBP": "0x00007FF0" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FE8", "value": "0x0000002A (Decimal 42)" },
+          { "address": "0x00007FF0", "value": "0x00008000 (Old RBP)" },
+          { "address": "0x00007FF8", "value": "0x0040001A (Ret Addr)" }
+        ],
+        "explanation": "MOV RAX, [RBP-8]: We read our local variable and put it into RAX. RAX is the standard register used for returning values from a function."
+      },
+      {
+        "line": 9,
+        "registers": { "RAX": "0x0000002A", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00007FF0", "RBP": "0x00007FF0" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FE8", "value": "0x0000002A (Garbage)" },
+          { "address": "0x00007FF0", "value": "0x00008000 (Old RBP)" },
+          { "address": "0x00007FF8", "value": "0x0040001A (Ret Addr)" }
+        ],
+        "explanation": "MOV RSP, RBP (Epilogue): We are done! To clean up our local variables, we simply move RSP back up to where RBP is. The local variables (like our 42) are still in memory, but they are now considered 'garbage' below the active stack."
+      },
+      {
+        "line": 10,
+        "registers": { "RAX": "0x0000002A", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00007FF8", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FF8", "value": "0x0040001A (Ret Addr)" }
+        ],
+        "explanation": "POP RBP (Epilogue): We pop the old, original Base Pointer off the stack and back into the RBP register. The caller's environment is fully restored!"
+      },
+      {
+        "line": 11,
+        "registers": { "RAX": "0x0000002A", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [],
+        "explanation": "RET: The CPU pops the return address (0x0040001A) off the stack and jumps back to it."
+      },
+      {
+        "line": 1,
+        "registers": { "RAX": "0x0000002A", "RBX": "0x0000002A", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [],
+        "explanation": "MOV RBX, RAX: Back in the caller, we save the result of the function (42) into RBX."
+      }
+    ]
+  },
+  {
+    "id": "basic-math",
+    "name": "Basic Arithmetic",
+    "description": "A simple program demonstrating data movement and arithmetic operations.",
+    "code": [
+      "MOV RAX, 10",
+      "MOV RBX, 5",
+      "ADD RAX, RBX",
+      "SUB RAX, 3",
+      "XOR RBX, RBX"
+    ],
+    "initial_state": {
+      "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+      "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+      "stack": []
+    },
+    "steps": [
+      {
+        "line": 0,
+        "registers": { "RAX": "0x0000000A", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [],
+        "explanation": "MOV RAX, 10: Loads the decimal value 10 (0x0A in hex) into the RAX register."
+      },
+      {
+        "line": 1,
+        "registers": { "RAX": "0x0000000A", "RBX": "0x00000005", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [],
+        "explanation": "MOV RBX, 5: Loads the decimal value 5 (0x05) into the RBX register."
+      },
+      {
+        "line": 2,
+        "registers": { "RAX": "0x0000000F", "RBX": "0x00000005", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [],
+        "explanation": "ADD RAX, RBX: Adds the value in RBX (5) to RAX (10). RAX now holds 15 (0x0F). Flags are unaffected in this specific calculation."
+      },
+      {
+        "line": 3,
+        "registers": { "RAX": "0x0000000C", "RBX": "0x00000005", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [],
+        "explanation": "SUB RAX, 3: Subtracts 3 from RAX (15). RAX now holds 12 (0x0C)."
+      },
+      {
+        "line": 4,
+        "registers": { "RAX": "0x0000000C", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+        "flags": { "ZF": 1, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [],
+        "explanation": "XOR RBX, RBX: Exclusive-ORs RBX with itself. This clears the register to 0. Notice the Zero Flag (ZF) is now set to 1 because the result was zero."
+      }
+    ]
+  },
+  {
+    "id": "stack-ops",
+    "name": "Stack Operations (PUSH/POP)",
+    "description": "Demonstrates PUSH and POP instructions and how they affect the Stack Pointer (RSP).",
+    "code": [
+      "MOV RAX, 0x1122",
+      "MOV RBX, 0x3344",
+      "PUSH RAX",
+      "PUSH RBX",
+      "POP RCX",
+      "POP RDX"
+    ],
+    "initial_state": {
+      "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+      "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+      "stack": []
+    },
+    "steps": [
+      {
+        "line": 0,
+        "registers": { "RAX": "0x00001122", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [],
+        "explanation": "Loads 0x1122 into RAX."
+      },
+      {
+        "line": 1,
+        "registers": { "RAX": "0x00001122", "RBX": "0x00003344", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [],
+        "explanation": "Loads 0x3344 into RBX."
+      },
+      {
+        "line": 2,
+        "registers": { "RAX": "0x00001122", "RBX": "0x00003344", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00007FF8", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FF8", "value": "0x00001122" }
+        ],
+        "explanation": "PUSH RAX: The Stack Pointer (RSP) decreases by 8 bytes, and the value of RAX (0x1122) is written to the new top of the stack. Notice how RSP points to the newest item."
+      },
+      {
+        "line": 3,
+        "registers": { "RAX": "0x00001122", "RBX": "0x00003344", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00007FF0", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FF0", "value": "0x00003344" },
+          { "address": "0x00007FF8", "value": "0x00001122" }
+        ],
+        "explanation": "PUSH RBX: RSP decreases by 8 again. The value of RBX (0x3344) is placed on top of the stack."
+      },
+      {
+        "line": 4,
+        "registers": { "RAX": "0x00001122", "RBX": "0x00003344", "RCX": "0x00003344", "RDX": "0x00000000", "RSP": "0x00007FF8", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FF0", "value": "0x00003344 (Popped)" },
+          { "address": "0x00007FF8", "value": "0x00001122" }
+        ],
+        "explanation": "POP RCX: The value at the top of the stack (0x3344) is copied into the RCX register. Then, RSP is incremented by 8. The memory isn't deleted, but it is now 'above' the active stack."
+      },
+      {
+        "line": 5,
+        "registers": { "RAX": "0x00001122", "RBX": "0x00003344", "RCX": "0x00003344", "RDX": "0x00001122", "RSP": "0x00008000", "RBP": "0x00008000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00007FF0", "value": "0x00003344 (Popped)" },
+          { "address": "0x00007FF8", "value": "0x00001122 (Popped)" }
+        ],
+        "explanation": "POP RDX: The next value (0x1122) is popped into RDX. RSP is incremented back to its starting value. Values come off the stack in Last-In-First-Out (LIFO) order!"
+      }
+    ]
+  },
+  {
+    "id": "loop-array",
+    "name": "Loop & Pointer Arithmetic",
+    "description": "Demonstrates a basic loop iterating through an array in memory.",
+    "code": [
+      "MOV RCX, 3        ; Loop counter",
+      "MOV RDI, 0x9000   ; Array base address",
+      "XOR RAX, RAX      ; Clear sum",
+      ".loop:",
+      "ADD RAX, [RDI]    ; Add array element to sum",
+      "ADD RDI, 8        ; Move pointer to next element",
+      "DEC RCX           ; Decrement counter",
+      "JNZ .loop         ; Jump if counter not zero",
+      "HLT"
+    ],
+    "initial_state": {
+      "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00000000" },
+      "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+      "stack": [
+        { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+        { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+        { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+      ]
+    },
+    "steps": [
+      {
+        "line": 0,
+        "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000003", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00000000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "MOV RCX, 3: Initializes our loop counter in RCX. We have an array of 3 numbers in memory."
+      },
+      {
+        "line": 1,
+        "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000003", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "MOV RDI, 0x9000: Loads the base address of our array into the RDI register (acting as a pointer)."
+      },
+      {
+        "line": 2,
+        "registers": { "RAX": "0x00000000", "RBX": "0x00000000", "RCX": "0x00000003", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009000" },
+        "flags": { "ZF": 1, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "XOR RAX, RAX: Clears RAX to 0. We will use RAX to store the running sum."
+      },
+      {
+        "line": 4,
+        "registers": { "RAX": "0x00000005", "RBX": "0x00000000", "RCX": "0x00000003", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009000" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "ADD RAX, [RDI]: Dereferences RDI to get the value at memory address 0x9000 (which is 5), and adds it to our sum in RAX."
+      },
+      {
+        "line": 5,
+        "registers": { "RAX": "0x00000005", "RBX": "0x00000000", "RCX": "0x00000003", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009008" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "ADD RDI, 8: Advances the pointer by 8 bytes (the size of a 64-bit integer) to point to the next element in the array."
+      },
+      {
+        "line": 6,
+        "registers": { "RAX": "0x00000005", "RBX": "0x00000000", "RCX": "0x00000002", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009008" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "DEC RCX: Decrements the loop counter. RCX is now 2."
+      },
+      {
+        "line": 7,
+        "registers": { "RAX": "0x00000005", "RBX": "0x00000000", "RCX": "0x00000002", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009008" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "JNZ .loop: Jump if Not Zero. Since RCX is 2 (not 0), the Zero Flag is not set, so it jumps back to the start of the loop."
+      },
+      {
+        "line": 4,
+        "registers": { "RAX": "0x0000000F", "RBX": "0x00000000", "RCX": "0x00000002", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009008" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "ADD RAX, [RDI]: Second iteration. Dereferences RDI (0x9008) to get 10 (0x0A) and adds it to RAX. Sum is now 15 (0x0F)."
+      },
+      {
+        "line": 5,
+        "registers": { "RAX": "0x0000000F", "RBX": "0x00000000", "RCX": "0x00000002", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009010" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "ADD RDI, 8: Advances pointer to 0x9010 (the third element)."
+      },
+      {
+        "line": 6,
+        "registers": { "RAX": "0x0000000F", "RBX": "0x00000000", "RCX": "0x00000001", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009010" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "DEC RCX: Counter is now 1."
+      },
+      {
+        "line": 7,
+        "registers": { "RAX": "0x0000000F", "RBX": "0x00000000", "RCX": "0x00000001", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009010" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "JNZ .loop: Jumps back again."
+      },
+      {
+        "line": 4,
+        "registers": { "RAX": "0x0000001E", "RBX": "0x00000000", "RCX": "0x00000001", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009010" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "ADD RAX, [RDI]: Third iteration. Adds 15 (0x0F) to the sum. Sum is now 30 (0x1E)."
+      },
+      {
+        "line": 5,
+        "registers": { "RAX": "0x0000001E", "RBX": "0x00000000", "RCX": "0x00000001", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009018" },
+        "flags": { "ZF": 0, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "ADD RDI, 8: Advances pointer again."
+      },
+      {
+        "line": 6,
+        "registers": { "RAX": "0x0000001E", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009018" },
+        "flags": { "ZF": 1, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "DEC RCX: Counter is now 0. The Zero Flag (ZF) is set to 1!"
+      },
+      {
+        "line": 7,
+        "registers": { "RAX": "0x0000001E", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009018" },
+        "flags": { "ZF": 1, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "JNZ .loop: Since ZF is 1, it does NOT jump. The loop exits."
+      },
+      {
+        "line": 8,
+        "registers": { "RAX": "0x0000001E", "RBX": "0x00000000", "RCX": "0x00000000", "RDX": "0x00000000", "RSP": "0x00008000", "RBP": "0x00008000", "RDI": "0x00009018" },
+        "flags": { "ZF": 1, "SF": 0, "OF": 0, "CF": 0 },
+        "stack": [
+          { "address": "0x00009000", "value": "0x00000005 (Array[0])" },
+          { "address": "0x00009008", "value": "0x0000000A (Array[1])" },
+          { "address": "0x00009010", "value": "0x0000000F (Array[2])" }
+        ],
+        "explanation": "HLT: Program completes successfully. The sum 30 is safely stored in RAX."
+      }
+    ]
+  }
+]

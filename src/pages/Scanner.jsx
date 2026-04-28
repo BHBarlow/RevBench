@@ -13,6 +13,10 @@ const categorizeImport = (imp) => {
 export default function Scanner({ result, setResult, expectedHash, setExpectedHash, isWasmLoaded, error, setError }) {
   const [isDragging, setIsDragging] = useState(false);
   const [stringSearch, setStringSearch] = useState('');
+  const [rawBinaryData, setRawBinaryData] = useState(null);
+  const [pattern, setPattern] = useState('');
+  const [patternMatches, setPatternMatches] = useState(null);
+  const [patternError, setPatternError] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleExportHTML = () => {
@@ -198,6 +202,8 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
     setError(null);
     setResult(null);
     setExpectedHash('');
+    setPatternMatches(null);
+    setPatternError(null);
 
     if (!isWasmLoaded) {
       setError("WebAssembly engine is not ready yet.");
@@ -207,6 +213,7 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
     try {
       const buffer = await file.arrayBuffer();
       const uint8Array = new Uint8Array(buffer);
+      setRawBinaryData(uint8Array);
       
       const jsonResult = window.RevBench_parseBinary(uint8Array);
       const parsed = JSON.parse(jsonResult);
@@ -218,6 +225,28 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
       }
     } catch (err) {
       setError("Error processing file: " + err.message);
+    }
+  };
+
+  const handleScanPattern = () => {
+    if (!rawBinaryData) return;
+    if (!pattern.trim()) {
+      setPatternError("Please enter a pattern.");
+      return;
+    }
+    setPatternError(null);
+    
+    try {
+      const jsonResult = window.RevBench_scanPattern(rawBinaryData, pattern);
+      const parsed = JSON.parse(jsonResult);
+      if (parsed.error) {
+        setPatternError(parsed.error);
+        setPatternMatches(null);
+      } else {
+        setPatternMatches(parsed.matches || []);
+      }
+    } catch (err) {
+      setPatternError("Scan failed: " + err.message);
     }
   };
 
@@ -399,6 +428,62 @@ export default function Scanner({ result, setResult, expectedHash, setExpectedHa
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Pattern Scanner (YARA-lite) */}
+          <div className="md:col-span-2 lg:col-span-3 bg-[#111928] border border-[#1f2937] border-t-2 border-t-[#00d4ff] shadow-xl shadow-black/40 p-6 rounded-sm">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-700/80">
+              <div className="p-2 bg-red-500/20 rounded-lg">
+                <Search className="text-red-400" size={20} />
+              </div>
+              <h3 className="text-xl font-bold text-white">Pattern Scanner (YARA-lite)</h3>
+            </div>
+            
+            <p className="text-slate-400 text-sm mb-4">
+              Search for exact byte sequences. Enter space-separated hex values (e.g. <code>4D 5A 90 00</code>). Use <code>??</code> as a wildcard for unknown bytes (e.g. <code>E8 ?? ?? ?? ??</code>).
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+              <input 
+                type="text" 
+                value={pattern}
+                onChange={(e) => setPattern(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleScanPattern()}
+                placeholder="Enter hex pattern (e.g. E8 ?? ?? ?? ??)..."
+                className="flex-1 bg-[#0b101e] border border-[#1f2937] rounded-sm p-3 text-[#00d4ff] font-mono text-sm focus:outline-none focus:border-red-400 placeholder-slate-600"
+              />
+              <button 
+                onClick={handleScanPattern}
+                className="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-sm font-bold uppercase tracking-wider text-sm transition-colors shadow-lg shadow-red-500/20"
+              >
+                Scan Rules
+              </button>
+            </div>
+            
+            {patternError && (
+              <div className="bg-red-900/30 border border-red-500/50 text-red-400 text-sm p-3 rounded mb-4 font-mono">
+                Error: {patternError}
+              </div>
+            )}
+            
+            {patternMatches && (
+              <div className="bg-slate-900/50 border border-slate-800 rounded-sm p-4">
+                <div className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-3 pb-2 border-b border-slate-800">
+                  {patternMatches.length} Match{patternMatches.length !== 1 ? 'es' : ''} Found
+                </div>
+                {patternMatches.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
+                    {patternMatches.map((m, idx) => (
+                      <span key={idx} className="bg-red-500/10 border border-red-500/30 text-red-400 font-mono text-xs px-2.5 py-1.5 rounded-sm hover:bg-red-500/20 cursor-default transition-colors">
+                        Offset: {m}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-slate-500 italic py-2 text-sm">No matches found for this pattern in the binary.</div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Imports Table */}
