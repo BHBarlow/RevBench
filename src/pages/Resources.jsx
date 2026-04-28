@@ -99,6 +99,27 @@ export default function Resources() {
               </h4>
               <p className="text-sm text-slate-400">The absolute best gamified platform for learning Return-Oriented Programming. You are given vulnerable binaries and must chain together snippets of Assembly (gadgets) to hijack execution flow. It strips away environment setup and forces you to focus entirely on ASM.</p>
             </a>
+
+            <a href="https://p.ost2.fyi/" target="_blank" rel="noreferrer" className="block bg-[#0b101e] p-5 rounded-sm border border-[#1f2937] hover:border-[#00d4ff] transition-all group">
+              <h4 className="text-lg font-bold text-white group-hover:text-[#00d4ff] flex justify-between items-center mb-2">
+                OpenSecurityTraining2 <ExternalLink size={16} />
+              </h4>
+              <p className="text-sm text-slate-400">Free, deeply technical, and structured courses covering reverse engineering, vulnerability research, and low-level system architecture.</p>
+            </a>
+
+            <a href="https://github.com/RPISEC/MBE" target="_blank" rel="noreferrer" className="block bg-[#0b101e] p-5 rounded-sm border border-[#1f2937] hover:border-[#00d4ff] transition-all group">
+              <h4 className="text-lg font-bold text-white group-hover:text-[#00d4ff] flex justify-between items-center mb-2">
+                Modern Binary Exploitation (MBE) <ExternalLink size={16} />
+              </h4>
+              <p className="text-sm text-slate-400">The legendary course materials from RPISEC. Provides lectures, labs, and projects that will take you from basic reverse engineering to advanced binary exploitation.</p>
+            </a>
+
+            <a href="https://ir0nstone.gitbook.io/notes" target="_blank" rel="noreferrer" className="block bg-[#0b101e] p-5 rounded-sm border border-[#1f2937] hover:border-[#00d4ff] transition-all group">
+              <h4 className="text-lg font-bold text-white group-hover:text-[#00d4ff] flex justify-between items-center mb-2">
+                ir0nstone's Notes <ExternalLink size={16} />
+              </h4>
+              <p className="text-sm text-slate-400">An incredibly accessible, easy-to-read, and comprehensive guide for binary exploitation (pwn). Covers classic attacks like buffer overflows, format strings, and heap exploitation.</p>
+            </a>
           </div>
         </div>
 
