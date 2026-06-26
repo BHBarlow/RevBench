@@ -1,4 +1,4 @@
-import { Shield, FileCode2, Cpu, BookOpen, Server, BookText, Link } from 'lucide-react';
+import { Shield, FileCode2, BookOpen, Server, BookText, Link, Layers } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -55,15 +55,15 @@ export default function Home() {
             <span className="w-2 h-2 rounded-full bg-purple-500"></span> Learning Resources
           </h3>
           <div className="grid gap-4">
-            
-            <div className="bg-[#111928] border border-[#1f2937] hover:border-purple-500/50 p-6 rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/10 group">
+
+            <div className="bg-[#111928] border border-[#1f2937] hover:border-blue-500/50 p-6 rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/10 group">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors">
-                  <Cpu className="text-purple-400" size={24} />
+                <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+                  <Layers className="text-blue-400" size={24} />
                 </div>
-                <h4 className="font-bold text-white text-xl group-hover:text-purple-400 transition-colors">Live CPU Simulator</h4>
+                <h4 className="font-bold text-white text-xl group-hover:text-blue-400 transition-colors">Cheat Sheet Dashboard</h4>
               </div>
-              <p className="text-sm text-gray-500 leading-relaxed">Step-by-step interactive simulator to visualize registers, flags, and the stack memory frame dynamically as instructions execute.</p>
+              <p className="text-sm text-gray-500 leading-relaxed">High-frequency lookup tables for reverse engineering. Covers calling conventions, magic bytes, architecture maps, and high-level ASM control flow patterns.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

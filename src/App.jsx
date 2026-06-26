@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
-import { Activity, LayoutDashboard, FileCode2, BookOpen, Shield, Server, Terminal, Link, BookText, Cpu } from 'lucide-react';
+import { Activity, LayoutDashboard, FileCode2, BookOpen, Shield, Server, Terminal, Link, BookText, Layers } from 'lucide-react';
 import Home from './pages/Home';
 import Converter from './pages/Converter';
-import Tutor from './pages/Tutor';
 import Scanner from './pages/Scanner';
 import MemoryGuide from './pages/MemoryGuide';
 import Resources from './pages/Resources';
-import Dictionary from './pages/Dictionary';
-import Simulator from './pages/Simulator';
+import CheatSheet from './pages/CheatSheet';
 
 function App() {
   // Persistent Scanner State
@@ -97,27 +95,15 @@ function App() {
                 <p className="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Learning Resources</p>
               </div>
               <li>
-                <NavLink to="/tutor" className={navLinkClass}>
-                  <BookOpen size={18} />
-                  <span>C-to-ASM Tutor</span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/simulator" className={navLinkClass}>
-                  <Cpu size={18} />
-                  <span>CPU Simulator</span>
+                <NavLink to="/cheatsheet" className={navLinkClass}>
+                  <Layers size={18} />
+                  <span>Cheat Sheet</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink to="/memory" className={navLinkClass}>
                   <Server size={18} />
                   <span>Architecture Guide</span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/dictionary" className={navLinkClass}>
-                  <BookText size={18} />
-                  <span>Opcode Dictionary</span>
                 </NavLink>
               </li>
               <li>
@@ -147,7 +133,6 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/converter" element={<Converter />} />
-              <Route path="/tutor" element={<Tutor />} />
               <Route 
                 path="/scanner" 
                 element={
@@ -162,9 +147,8 @@ function App() {
                   />
                 } 
               />
-              <Route path="/simulator" element={<Simulator />} />
+              <Route path="/cheatsheet" element={<CheatSheet />} />
               <Route path="/memory" element={<MemoryGuide />} />
-              <Route path="/dictionary" element={<Dictionary />} />
               <Route path="/resources" element={<Resources />} />
             </Routes>
           </div>

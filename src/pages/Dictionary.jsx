@@ -12,9 +12,11 @@ function Dictionary() {
   // Filter instructions based on search and category
   const filteredInstructions = useMemo(() => {
     return instructionsData.filter((inst) => {
+      const searchLower = searchTerm.toLowerCase();
       const matchesSearch = 
-        inst.mnemonic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inst.description.toLowerCase().includes(searchTerm.toLowerCase());
+        inst.mnemonic.toLowerCase().includes(searchLower) ||
+        inst.description.toLowerCase().includes(searchLower) ||
+        (inst.nicheCases && inst.nicheCases.some(nc => nc.toLowerCase().includes(searchLower)));
       
       const matchesCategory = selectedCategory === 'All' || inst.category === selectedCategory;
       
@@ -33,7 +35,7 @@ function Dictionary() {
   };
 
   return (
-    <div className="h-full flex flex-col max-w-6xl mx-auto">
+    <div className="h-full flex flex-col w-full">
       <div className="mb-8">
         <h1 className="text-3xl font-black text-white tracking-tight mb-2 flex items-center gap-3">
           Opcode Dictionary
@@ -95,10 +97,34 @@ function Dictionary() {
                   </div>
                 </div>
 
-                <div className="mb-4 flex-1">
+                <div className="mb-4 flex-1 space-y-4">
                   <p className="text-gray-300 text-sm leading-relaxed">
                     {inst.description}
                   </p>
+                  
+                  {inst.nicheCases && inst.nicheCases.length > 0 && (
+                    <div className="bg-[#0b101e]/50 border border-purple-500/20 rounded-lg p-3">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block mb-2">Niche Cases & Tricks</span>
+                      <ul className="list-disc pl-4 space-y-1.5">
+                        {inst.nicheCases.map((nc, idx) => (
+                          <li key={idx} className="text-xs text-gray-400 leading-relaxed">{nc}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {inst.examples && inst.examples.length > 0 && (
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2">Examples</span>
+                      <div className="space-y-1.5">
+                        {inst.examples.map((ex, idx) => (
+                          <div key={idx} className="bg-[#0b101e] border border-[#1f2937] rounded px-3 py-2 overflow-x-auto custom-scrollbar">
+                            <code className="text-emerald-400 text-xs font-mono whitespace-pre">{ex}</code>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-auto space-y-3 pt-4 border-t border-[#1f2937]/50">

@@ -145,9 +145,16 @@ export default function Resources() {
 
             <a href="https://godbolt.org/" target="_blank" rel="noreferrer" className="block bg-[#0b101e] p-5 rounded-sm border border-[#1f2937] hover:border-[#00d4ff] transition-all group">
               <h4 className="text-lg font-bold text-white group-hover:text-[#00d4ff] flex justify-between items-center mb-2">
-                Compiler Explorer <ExternalLink size={16} />
+                Compiler Explorer (Godbolt) <ExternalLink size={16} />
               </h4>
               <p className="text-sm text-slate-400">The ultimate interactive sandbox for understanding the relationship between C and ASM. Write C code in the left pane, and it compiles to Assembly in the right pane in real-time, completely color-coded.</p>
+            </a>
+
+            <a href="https://dogbolt.org/" target="_blank" rel="noreferrer" className="block bg-[#0b101e] p-5 rounded-sm border border-[#1f2937] hover:border-[#00d4ff] transition-all group">
+              <h4 className="text-lg font-bold text-white group-hover:text-[#00d4ff] flex justify-between items-center mb-2">
+                Decompiler Explorer (Dogbolt) <ExternalLink size={16} />
+              </h4>
+              <p className="text-sm text-slate-400">The decompiler equivalent to Compiler Explorer. Upload a binary and view decompiled output side-by-side from industry-standard decompilers like Ghidra, Hex-Rays, Binary Ninja, and more.</p>
             </a>
           </div>
         </div>

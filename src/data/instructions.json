@@ -1,149 +1,300 @@
 [
   {
     "mnemonic": "MOV",
-    "description": "Moves data from a source location to a destination location. Despite the name, it copies the data; the source remains unchanged. Cannot move memory to memory directly.",
+    "description": "Moves data from a source location to a destination location. Despite the name, it copies the data; the source remains unchanged.",
     "syntax": "MOV dest, src",
     "flags": "None",
-    "category": "Data Transfer"
+    "category": "Data Transfer",
+    "nicheCases": [
+      "Cannot move memory to memory directly; you must route through a register.",
+      "Moving a 32-bit value into a 32-bit register (e.g., MOV EAX, -1) automatically zero-extends into the upper 32 bits of the 64-bit register (RAX), effectively clearing them.",
+      "Attempting to MOV directly into a segment register like CS will cause a fault."
+    ],
+    "examples": [
+      "MOV RAX, 0x10   ; Set RAX to 16",
+      "MOV [RBX], RCX  ; Store RCX into the memory address pointed to by RBX"
+    ]
   },
   {
     "mnemonic": "LEA",
     "description": "Load Effective Address. Calculates the memory address of the source operand and loads it into the destination register. Often used for pointer arithmetic without accessing memory.",
     "syntax": "LEA dest, [src]",
     "flags": "None",
-    "category": "Data Transfer"
+    "category": "Data Transfer",
+    "nicheCases": [
+      "Often abused for fast, non-destructive math. LEA can perform operations like dest = base + (index * scale) + displacement in a single clock cycle without affecting CPU flags.",
+      "Example math abuse: LEA EAX, [EBX + EBX*4] multiplies EBX by 5 extremely quickly."
+    ],
+    "examples": [
+      "LEA RAX, [RBX+8]          ; Set RAX to RBX + 8",
+      "LEA RDI, [RSI+RCX*4+0x10] ; Complex pointer arithmetic"
+    ]
   },
   {
     "mnemonic": "PUSH",
     "description": "Pushes a value onto the top of the stack. Decrements the stack pointer (RSP) by the operand size and stores the operand at the new RSP location.",
     "syntax": "PUSH src",
     "flags": "None",
-    "category": "Stack"
+    "category": "Stack",
+    "nicheCases": [
+      "In 64-bit mode, you generally cannot PUSH a 32-bit register directly. It defaults to 64-bit pushes to maintain stack alignment.",
+      "Pushing an immediate value sign-extends it to 64 bits."
+    ],
+    "examples": [
+      "PUSH RAX      ; Save RAX on the stack",
+      "PUSH 0x10     ; Push the value 16"
+    ]
   },
   {
     "mnemonic": "POP",
     "description": "Pops a value from the top of the stack into a destination. Copies the data at the current stack pointer (RSP) to the destination, then increments RSP.",
     "syntax": "POP dest",
     "flags": "None",
-    "category": "Stack"
+    "category": "Stack",
+    "nicheCases": [
+      "Like PUSH, POP generally operates on 64-bit boundaries in x86-64.",
+      "You can POP into memory directly, not just registers (e.g., POP qword ptr [RAX])."
+    ],
+    "examples": [
+      "POP RAX  ; Restore value into RAX from the stack",
+      "POP [RBX]; Pop top of stack into memory at RBX"
+    ]
   },
   {
     "mnemonic": "ADD",
     "description": "Adds the source operand to the destination operand, storing the result in the destination.",
     "syntax": "ADD dest, src",
     "flags": "OF, SF, ZF, AF, CF, PF",
-    "category": "Arithmetic"
+    "category": "Arithmetic",
+    "nicheCases": [
+      "If the result exceeds the destination size, the Carry Flag (CF) is set for unsigned arithmetic, and the Overflow Flag (OF) is set for signed arithmetic."
+    ],
+    "examples": [
+      "ADD RAX, RBX  ; RAX = RAX + RBX",
+      "ADD RCX, 5    ; RCX = RCX + 5"
+    ]
   },
   {
     "mnemonic": "SUB",
     "description": "Subtracts the source operand from the destination operand, storing the result in the destination.",
     "syntax": "SUB dest, src",
     "flags": "OF, SF, ZF, AF, CF, PF",
-    "category": "Arithmetic"
+    "category": "Arithmetic",
+    "nicheCases": [
+      "Subtracting a register from itself (SUB RAX, RAX) zeroes the register and clears the carry flag, though XOR RAX, RAX is more idiomatic."
+    ],
+    "examples": [
+      "SUB RAX, 10   ; RAX = RAX - 10"
+    ]
   },
   {
     "mnemonic": "INC",
     "description": "Increments the operand by 1. Often used for loop counters.",
     "syntax": "INC dest",
-    "flags": "OF, SF, ZF, AF, PF (Note: CF is NOT affected)",
-    "category": "Arithmetic"
+    "flags": "OF, SF, ZF, AF, PF (CF is NOT affected)",
+    "category": "Arithmetic",
+    "nicheCases": [
+      "Crucially, INC does NOT affect the Carry Flag (CF). This historical design decision allows you to use INC for loop counters while performing multi-precision additions (using ADC - Add with Carry) inside the loop without destroying the carry state."
+    ],
+    "examples": [
+      "INC RAX       ; RAX = RAX + 1",
+      "INC byte ptr [RBX] ; Increment the byte at memory address RBX"
+    ]
   },
   {
     "mnemonic": "DEC",
     "description": "Decrements the operand by 1.",
     "syntax": "DEC dest",
-    "flags": "OF, SF, ZF, AF, PF (Note: CF is NOT affected)",
-    "category": "Arithmetic"
+    "flags": "OF, SF, ZF, AF, PF (CF is NOT affected)",
+    "category": "Arithmetic",
+    "nicheCases": [
+      "Like INC, DEC does not affect the Carry Flag."
+    ],
+    "examples": [
+      "DEC RCX       ; RCX = RCX - 1"
+    ]
   },
   {
     "mnemonic": "CMP",
-    "description": "Compares the destination to the source by performing a subtraction (dest - src), but discards the result. It only updates the CPU flags, which are typically checked by a subsequent jump instruction.",
+    "description": "Compares the destination to the source by performing a subtraction (dest - src), but discards the result. It only updates the CPU flags.",
     "syntax": "CMP dest, src",
     "flags": "OF, SF, ZF, AF, CF, PF",
-    "category": "Comparison"
+    "category": "Comparison",
+    "nicheCases": [
+      "Comparing a register to itself (CMP EAX, EAX) always sets the Zero Flag (ZF).",
+      "Under the hood, it's identical to SUB, just without saving the output."
+    ],
+    "examples": [
+      "CMP RAX, 0    ; Check if RAX is 0",
+      "CMP RBX, RCX  ; Compare RBX to RCX"
+    ]
   },
   {
     "mnemonic": "TEST",
-    "description": "Performs a bitwise AND between the two operands, discarding the result and only updating flags. Often used as 'TEST RAX, RAX' to check if a register is zero.",
+    "description": "Performs a bitwise AND between the two operands, discarding the result and only updating flags.",
     "syntax": "TEST dest, src",
     "flags": "SF, ZF, PF (Clears OF, CF)",
-    "category": "Comparison"
+    "category": "Comparison",
+    "nicheCases": [
+      "TEST EAX, EAX is the universally preferred way to check if a register is zero. It's functionally identical to CMP EAX, 0 but produces shorter machine code.",
+      "Used frequently to test specific bit flags (e.g., TEST AL, 00000001b)."
+    ],
+    "examples": [
+      "TEST RAX, RAX ; Sets ZF if RAX is 0",
+      "TEST BL, 0x80 ; Checks if the highest bit of BL is set"
+    ]
   },
   {
     "mnemonic": "JMP",
     "description": "Unconditional jump. Transfers control to the specified address.",
     "syntax": "JMP target",
     "flags": "None",
-    "category": "Control Flow"
+    "category": "Control Flow",
+    "nicheCases": [
+      "JMP $+2 (jumping to the very next instruction) is a classic 2-byte NOP used in older obfuscation techniques.",
+      "Jumps can be 'short' (1-byte relative offset), 'near' (4-byte relative offset), or 'far' (absolute segment:offset)."
+    ],
+    "examples": [
+      "JMP 0x401000 ; Jump to specific address",
+      "JMP RAX ; Jump to address stored in RAX (Indirect Jump)"
+    ]
   },
   {
     "mnemonic": "JE / JZ",
     "description": "Jump if Equal / Jump if Zero. Jumps to the target if the Zero Flag (ZF) is set to 1.",
     "syntax": "JE target",
     "flags": "None",
-    "category": "Control Flow"
+    "category": "Control Flow",
+    "nicheCases": [
+      "JE and JZ are the exact same opcode (0x74 for short jumps). The assembler just gives you two names for readability depending on whether you preceded it with a CMP or a TEST."
+    ],
+    "examples": [
+      "CMP RAX, RBX\nJE equal_label"
+    ]
   },
   {
     "mnemonic": "JNE / JNZ",
     "description": "Jump if Not Equal / Jump if Not Zero. Jumps to the target if the Zero Flag (ZF) is 0.",
     "syntax": "JNE target",
     "flags": "None",
-    "category": "Control Flow"
+    "category": "Control Flow",
+    "nicheCases": [
+      "Just like JE/JZ, JNE and JNZ compile to the exact same machine byte."
+    ],
+    "examples": [
+      "TEST RAX, RAX\nJNZ not_zero_label"
+    ]
   },
   {
     "mnemonic": "JG / JNLE",
     "description": "Jump if Greater (Signed). Jumps if ZF=0 and SF=OF.",
     "syntax": "JG target",
     "flags": "None",
-    "category": "Control Flow"
+    "category": "Control Flow",
+    "nicheCases": [
+      "Only used for SIGNED numbers. If you are comparing unsigned numbers (like memory addresses), you must use JA (Jump if Above) instead of JG."
+    ],
+    "examples": [
+      "CMP EAX, -5\nJG greater_label"
+    ]
   },
   {
     "mnemonic": "JL / JNGE",
     "description": "Jump if Less (Signed). Jumps if SF != OF.",
     "syntax": "JL target",
     "flags": "None",
-    "category": "Control Flow"
+    "category": "Control Flow",
+    "nicheCases": [
+      "Only for SIGNED numbers. For unsigned comparisons, use JB (Jump if Below)."
+    ],
+    "examples": [
+      "CMP EAX, 0\nJL negative_label"
+    ]
   },
   {
     "mnemonic": "CALL",
     "description": "Calls a procedure. Pushes the return address (the instruction immediately following the CALL) onto the stack, then jumps to the target address.",
     "syntax": "CALL target",
     "flags": "None",
-    "category": "Control Flow"
+    "category": "Control Flow",
+    "nicheCases": [
+      "Malware/Shellcode Trick: In 32-bit x86, 'CALL $+5' followed immediately by 'POP EAX' was the standard way to find the current Instruction Pointer (EIP) to write Position Independent Code (PIC). Since 64-bit introduced RIP-relative addressing (e.g. LEA RAX, [RIP+offset]), this trick is mostly obsolete, but essential for reversing historical or 32-bit code.",
+      "CALL can be indirect. 'CALL RAX' jumps to the address in RAX. 'CALL qword ptr [RAX]' reads a memory address and jumps to it, which is exactly how C++ Virtual Tables (vtables) and imported DLL functions (IAT) are executed."
+    ],
+    "examples": [
+      "CALL 0x401500  ; Direct call to an offset",
+      "CALL RAX       ; Indirect call to a function pointer",
+      "CALL [RAX+8]   ; Indirect call to a vtable entry"
+    ]
   },
   {
     "mnemonic": "RET",
     "description": "Returns from a procedure. Pops the return address off the stack and jumps to it.",
     "syntax": "RET",
     "flags": "None",
-    "category": "Control Flow"
+    "category": "Control Flow",
+    "nicheCases": [
+      "RET n (e.g., RET 8) pops the return address, AND then adds 'n' to the stack pointer. This is heavily used in the Windows 'stdcall' calling convention where the called function is responsible for cleaning up the arguments from the stack.",
+      "Return-Oriented Programming (ROP) relies entirely on chaining fragments of code ending in RET."
+    ],
+    "examples": [
+      "RET       ; Standard return",
+      "RET 0x10  ; Return and pop 16 bytes of arguments off stack"
+    ]
   },
   {
     "mnemonic": "AND",
     "description": "Performs a bitwise AND operation between destination and source, storing the result in the destination.",
     "syntax": "AND dest, src",
     "flags": "SF, ZF, PF (Clears OF, CF)",
-    "category": "Logical"
+    "category": "Logical",
+    "nicheCases": [
+      "Frequently used to apply bitmasks. E.g., AND RAX, 0xFF isolates the lowest 8 bytes."
+    ],
+    "examples": [
+      "AND AL, 0x0F  ; Keep only the lower 4 bits of AL"
+    ]
   },
   {
     "mnemonic": "OR",
     "description": "Performs a bitwise OR operation between destination and source, storing the result in the destination.",
     "syntax": "OR dest, src",
     "flags": "SF, ZF, PF (Clears OF, CF)",
-    "category": "Logical"
+    "category": "Logical",
+    "nicheCases": [
+      "Used to set specific bits. OR AL, 00000001b ensures the lowest bit is set to 1."
+    ],
+    "examples": [
+      "OR RAX, RBX"
+    ]
   },
   {
     "mnemonic": "XOR",
-    "description": "Performs a bitwise Exclusive-OR operation. Often used to clear a register to zero by XORing it with itself (e.g., XOR EAX, EAX).",
+    "description": "Performs a bitwise Exclusive-OR operation.",
     "syntax": "XOR dest, src",
     "flags": "SF, ZF, PF (Clears OF, CF)",
-    "category": "Logical"
+    "category": "Logical",
+    "nicheCases": [
+      "XOR RAX, RAX is the most common way to zero a register. Modern CPUs recognize this as a 'zeroing idiom'. It breaks the data dependency chain, allowing the CPU to execute it faster than 'MOV RAX, 0', and it uses fewer bytes of machine code.",
+      "XORing a value with a key twice returns the original value, making it a foundational operation for simple encryption/obfuscation."
+    ],
+    "examples": [
+      "XOR RAX, RAX  ; Set RAX to 0",
+      "XOR CL, 0x55  ; XOR obfuscate/deobfuscate the byte in CL"
+    ]
   },
   {
     "mnemonic": "NOP",
     "description": "No Operation. Does absolutely nothing. Often used for padding or alignment.",
     "syntax": "NOP",
     "flags": "None",
-    "category": "Miscellaneous"
+    "category": "Miscellaneous",
+    "nicheCases": [
+      "To optimize CPU instruction fetching, branch targets are often aligned to 16-byte boundaries. Compilers use multi-byte NOPs (like 0x0F 0x1F) to pad the space securely without executing extraneous instructions.",
+      "Hackers use 'NOP sleds' (a huge array of NOPs) in buffer overflows to give their jump target a wide margin of error before hitting shellcode."
+    ],
+    "examples": [
+      "NOP"
+    ]
   }
 ]
