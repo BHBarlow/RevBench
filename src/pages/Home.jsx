@@ -1,4 +1,4 @@
-import { Shield, FileCode2, BookOpen, Server, BookText, Link, Layers } from 'lucide-react';
+import { Shield, FileCode2, Server, Link, Layers } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -63,22 +63,10 @@ export default function Home() {
                 </div>
                 <h4 className="font-bold text-white text-xl group-hover:text-blue-400 transition-colors">Cheat Sheet Dashboard</h4>
               </div>
-              <p className="text-sm text-gray-500 leading-relaxed">High-frequency lookup tables for reverse engineering. Covers calling conventions, magic bytes, architecture maps, and high-level ASM control flow patterns.</p>
+              <p className="text-sm text-gray-500 leading-relaxed">High-frequency lookup tables for reverse engineering. Covers opcodes, calling conventions, magic bytes, architecture maps, and high-level ASM control flow patterns.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-[#111928] border border-[#1f2937] p-5 rounded-xl hover:bg-[#151e2d] transition-colors">
-                <BookOpen className="text-yellow-400 mb-3" size={20} />
-                <h4 className="font-bold text-white text-sm mb-2">C-to-ASM Tutor</h4>
-                <p className="text-xs text-gray-500 leading-relaxed">Learn how C code compiles directly into x86 Assembly instructions.</p>
-              </div>
-              
-              <div className="bg-[#111928] border border-[#1f2937] p-5 rounded-xl hover:bg-[#151e2d] transition-colors">
-                <BookText className="text-orange-400 mb-3" size={20} />
-                <h4 className="font-bold text-white text-sm mb-2">Opcode Dictionary</h4>
-                <p className="text-xs text-gray-500 leading-relaxed">Searchable reference for common x86-64 instructions and flags.</p>
-              </div>
-
               <div className="bg-[#111928] border border-[#1f2937] p-5 rounded-xl hover:bg-[#151e2d] transition-colors">
                 <Server className="text-blue-400 mb-3" size={20} />
                 <h4 className="font-bold text-white text-sm mb-2">Architecture Guide</h4>
