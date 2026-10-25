@@ -8,6 +8,11 @@ RevBench provides a suite of lightweight tools for binary analysis, encoding con
 
 ## Table of Contents
 
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation & Running the Server](#installation--running-the-server)
+  - [Available Scripts](#available-scripts)
+  - [Rebuilding WebAssembly (Optional)](#rebuilding-webassembly-optional)
 - [Architecture](#architecture)
 - [Pages](#pages)
   - [Quick Converter](#quick-converter--hex--bin--ascii)
@@ -15,6 +20,54 @@ RevBench provides a suite of lightweight tools for binary analysis, encoding con
   - [Triage Scanner](#pre-reversing-triage-scanner)
 - [Project Structure](#project-structure)
 - [Development Roadmap](#development-roadmap)
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18+ recommended)
+- [npm](https://www.npmjs.com/) (bundled with Node.js)
+- *(Optional)* [Go](https://go.dev/) (1.21+) if you plan on modifying and recompiling the WebAssembly scanner
+
+### Installation & Running the Server
+
+1. **Clone the repository** (if not already done) and enter the directory:
+   ```bash
+   git clone <repo-url>
+   cd RevBench
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Access the application**:
+   Open your browser and navigate to `http://localhost:5173` (or the URL shown in your terminal).
+
+### Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Launches the Vite local dev server with Hot Module Replacement (HMR). |
+| `npm run build` | Compiles and bundles production-ready assets into the `dist/` directory. |
+| `npm run preview` | Locally serves the production build in `dist/` for testing. |
+| `npm run lint` | Runs ESLint to check code quality and syntax issues. |
+
+### Rebuilding WebAssembly (Optional)
+
+The precompiled `scanner.wasm` and `wasm_exec.js` are already provided in `public/wasm/`. If you modify the Go source code in `cmd/scanner/main.go`, recompile it with:
+
+```bash
+GOOS=js GOARCH=wasm go build -o public/wasm/scanner.wasm cmd/scanner/main.go
+```
 
 ---
 

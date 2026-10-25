@@ -56,6 +56,13 @@ export default function Resources() {
               </h4>
               <p className="text-sm text-slate-400">ARM is the backbone of IoT, mobile, and vehicle telematics. Azeria's guides are the gold standard for getting comfortable with ARM registers, memory instructions, and execution flow.</p>
             </a>
+
+            <a href="https://syscall.sh/" target="_blank" rel="noreferrer" className="block bg-[#0b101e] p-5 rounded-sm border border-[#1f2937] hover:border-[#00d4ff] transition-all group">
+              <h4 className="text-lg font-bold text-white group-hover:text-[#00d4ff] flex justify-between items-center mb-2">
+                syscall.sh <ExternalLink size={16} />
+              </h4>
+              <p className="text-sm text-slate-400">A clean, fast reference table for Linux system calls and calling conventions across multiple architectures (x86, x86_64, ARM, ARM64, MIPS, RISC-V, and more).</p>
+            </a>
           </div>
         </div>
 

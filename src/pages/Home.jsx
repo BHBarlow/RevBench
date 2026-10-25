@@ -1,4 +1,5 @@
-import { Shield, FileCode2, Server, Link, Layers } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Shield, FileCode2, Server, Link as LinkIcon, Layers } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -27,7 +28,10 @@ export default function Home() {
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Active Tools
           </h3>
           <div className="grid gap-4">
-            <div className="bg-[#111928] border border-[#1f2937] hover:border-[#00d4ff]/50 p-6 rounded-xl transition-all hover:shadow-lg hover:shadow-[#00d4ff]/10 group">
+            <Link 
+              to="/scanner" 
+              className="block bg-[#111928] border border-[#1f2937] hover:border-[#00d4ff]/50 p-6 rounded-xl transition-all hover:shadow-lg hover:shadow-[#00d4ff]/10 group"
+            >
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-[#00d4ff]/10 rounded-lg group-hover:bg-[#00d4ff]/20 transition-colors">
                   <Shield className="text-[#00d4ff]" size={24} />
@@ -35,9 +39,12 @@ export default function Home() {
                 <h4 className="font-bold text-white text-xl group-hover:text-[#00d4ff] transition-colors">Static Analyzer & YARA</h4>
               </div>
               <p className="text-sm text-gray-500 leading-relaxed">Secure client-side parsing of PE/ELF binaries. View Import Address Tables, extracted strings, Hex dumps, and scan for custom YARA byte patterns without uploading data.</p>
-            </div>
+            </Link>
             
-            <div className="bg-[#111928] border border-[#1f2937] hover:border-emerald-500/50 p-6 rounded-xl transition-all hover:shadow-lg hover:shadow-emerald-500/10 group">
+            <Link 
+              to="/converter" 
+              className="block bg-[#111928] border border-[#1f2937] hover:border-emerald-500/50 p-6 rounded-xl transition-all hover:shadow-lg hover:shadow-emerald-500/10 group"
+            >
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-emerald-500/10 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
                   <FileCode2 className="text-emerald-400" size={24} />
@@ -45,7 +52,7 @@ export default function Home() {
                 <h4 className="font-bold text-white text-xl group-hover:text-emerald-400 transition-colors">Quick Converter</h4>
               </div>
               <p className="text-sm text-gray-500 leading-relaxed">Convert data payloads seamlessly between Hex, Decimal, Binary, Base64, and ASCII formats on the fly. Essential for rapid payload crafting.</p>
-            </div>
+            </Link>
           </div>
         </div>
 
@@ -56,7 +63,10 @@ export default function Home() {
           </h3>
           <div className="grid gap-4">
 
-            <div className="bg-[#111928] border border-[#1f2937] hover:border-blue-500/50 p-6 rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/10 group">
+            <Link 
+              to="/cheatsheet" 
+              className="block bg-[#111928] border border-[#1f2937] hover:border-blue-500/50 p-6 rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/10 group"
+            >
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
                   <Layers className="text-blue-400" size={24} />
@@ -64,20 +74,26 @@ export default function Home() {
                 <h4 className="font-bold text-white text-xl group-hover:text-blue-400 transition-colors">Cheat Sheet Dashboard</h4>
               </div>
               <p className="text-sm text-gray-500 leading-relaxed">High-frequency lookup tables for reverse engineering. Covers opcodes, calling conventions, magic bytes, architecture maps, and high-level ASM control flow patterns.</p>
-            </div>
+            </Link>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-[#111928] border border-[#1f2937] p-5 rounded-xl hover:bg-[#151e2d] transition-colors">
-                <Server className="text-blue-400 mb-3" size={20} />
-                <h4 className="font-bold text-white text-sm mb-2">Architecture Guide</h4>
+              <Link 
+                to="/memory" 
+                className="block bg-[#111928] border border-[#1f2937] p-5 rounded-xl hover:bg-[#151e2d] hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10 transition-all group"
+              >
+                <Server className="text-blue-400 mb-3 group-hover:scale-110 transition-transform" size={20} />
+                <h4 className="font-bold text-white text-sm mb-2 group-hover:text-blue-400 transition-colors">Architecture Guide</h4>
                 <p className="text-xs text-gray-500 leading-relaxed">Deep dive documentation on memory layout and registers.</p>
-              </div>
+              </Link>
               
-              <div className="bg-[#111928] border border-[#1f2937] p-5 rounded-xl hover:bg-[#151e2d] transition-colors">
-                <Link className="text-pink-400 mb-3" size={20} />
-                <h4 className="font-bold text-white text-sm mb-2">External Links</h4>
+              <Link 
+                to="/resources" 
+                className="block bg-[#111928] border border-[#1f2937] p-5 rounded-xl hover:bg-[#151e2d] hover:border-pink-500/50 hover:shadow-lg hover:shadow-pink-500/10 transition-all group"
+              >
+                <LinkIcon className="text-pink-400 mb-3 group-hover:scale-110 transition-transform" size={20} />
+                <h4 className="font-bold text-white text-sm mb-2 group-hover:text-pink-400 transition-colors">External Links</h4>
                 <p className="text-xs text-gray-500 leading-relaxed">Curated professional resources and reading materials.</p>
-              </div>
+              </Link>
             </div>
 
           </div>
